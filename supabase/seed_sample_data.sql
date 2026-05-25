@@ -13,7 +13,7 @@
 -- ─────────────────────────────────────────────────────────────────────────
 do $$
 declare
-  v_email text := 'CHANGE_ME@example.com';   -- ← set to your sign-up email
+  v_email text := 'ian@switzer.club';   -- ← set to your sign-up email
   v_uid uuid;
   v_chase uuid;
   v_amex uuid;
