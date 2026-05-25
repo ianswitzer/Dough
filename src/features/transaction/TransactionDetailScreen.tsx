@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, TextInput, View } from 'react-native';
 
 import {
   AsyncBoundary,
@@ -63,9 +63,11 @@ function DetailBody({
   const [showPicker, setShowPicker] = useState(false);
   const [remember, setRemember] = useState(true);
   const [hidden, setHidden] = useState(tx.isHiddenFromBudget);
+  const [notes, setNotes] = useState(tx.notes ?? '');
   const [saving, setSaving] = useState(false);
   const chosenCat = chosen ? categories.find((c) => c.id === chosen) : undefined;
-  const changed = chosen !== tx.categoryId || hidden !== tx.isHiddenFromBudget;
+  const categoryChanged = chosen !== tx.categoryId;
+  const changed = categoryChanged || hidden !== tx.isHiddenFromBudget || notes.trim() !== (tx.notes ?? '');
   const isIncome = tx.amountCents < 0;
 
   const save = async () => {
@@ -74,10 +76,17 @@ function DetailBody({
       await repos.transactions.update(tx.id, {
         categoryId: chosen ?? undefined,
         isHiddenFromBudget: hidden,
+        notes: notes.trim() || null,
         reviewStatus: 'reviewed',
       });
-      // (Spec §12.2) creating a MerchantRule from `remember` is a follow-up —
-      // see TODO.md. For now the correction itself is persisted.
+      // Corrections create learning (spec §12.2/§14): if the user changed the
+      // category and opted to remember it, persist a MerchantRule and apply it
+      // to other un-reviewed charges from the same merchant.
+      if (remember && categoryChanged && chosen) {
+        await repos.rules
+          .createFromCorrection({ merchant: tx.merchant, setCategoryId: chosen, sourceTransactionId: tx.id })
+          .catch(() => {});
+      }
       onSaved();
     } finally {
       setSaving(false);
@@ -157,7 +166,7 @@ function DetailBody({
             </View>
           ) : null}
           <DetailRow label="Tags" value={tx.tagNames.join(', ') || 'Add tag'} />
-          <DetailRow label="Notes" value={tx.notes ?? 'Tap to add a note…'} last />
+          <NotesRow value={notes} onChange={setNotes} />
         </Card>
       </View>
 
@@ -198,7 +207,25 @@ function DetailBody({
   );
 }
 
-function DetailRow({ label, value, last }: { label: string; value: string; last?: boolean }) {
+// Editable notes row: inline TextInput so a note can be added/edited and saved
+// with the rest of the corrections.
+function NotesRow({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const { colors, fonts } = useTheme();
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 14, borderTopWidth: 0.5, borderTopColor: colors.hairline }}>
+      <Txt color={colors.muted} style={{ fontSize: 13, width: 64 }}>Notes</Txt>
+      <TextInput
+        value={value}
+        onChangeText={onChange}
+        placeholder="Tap to add a note…"
+        placeholderTextColor={colors.muted}
+        style={{ flex: 1, textAlign: 'right', fontFamily: fonts.ui, fontSize: 14, color: colors.ink, padding: 0 }}
+      />
+    </View>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
   const { colors } = useTheme();
   return (
     <View

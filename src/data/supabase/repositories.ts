@@ -161,6 +161,42 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
       },
     },
 
+    rules: {
+      async createFromCorrection({ merchant, setCategoryId, sourceTransactionId }) {
+        const { data: auth } = await sb.auth.getUser();
+        const uid = auth.user!.id;
+        // Persist the rule as a natural-language-friendly "merchant contains"
+        // match (spec §14: rules read like remembered corrections).
+        unwrap(
+          await sb
+            .from('merchant_rules')
+            .insert({
+              user_id: uid,
+              match_type: 'raw_description_contains',
+              match_value: merchant,
+              priority: 10,
+              set_category_id: setCategoryId,
+              created_from_transaction_id: sourceTransactionId,
+            })
+            .select(),
+        );
+        // Apply to existing same-merchant rows the user hasn't hand-reviewed,
+        // so the correction visibly propagates (spec §12.2). Never clobber a
+        // reviewed row.
+        const updated = unwrap(
+          await sb
+            .from('transactions')
+            .update({ category_id: setCategoryId })
+            .eq('user_id', uid)
+            .eq('description_clean', merchant)
+            .neq('id', sourceTransactionId)
+            .neq('review_status', 'reviewed')
+            .select('id'),
+        );
+        return (updated as any[]).length;
+      },
+    },
+
     recurring: {
       async list() {
         const rows = unwrap(

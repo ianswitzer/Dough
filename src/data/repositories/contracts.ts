@@ -57,6 +57,24 @@ export interface RecurringRepository {
   list(): Promise<RecurringTransaction[]>;
 }
 
+export interface CreateRuleFromCorrection {
+  /** Merchant display name the correction was made on (the match value). */
+  merchant: string;
+  /** Category to apply to this and future matching transactions. */
+  setCategoryId: string;
+  /** Transaction the rule was derived from. */
+  sourceTransactionId: string;
+}
+
+export interface RuleRepository {
+  /**
+   * Persist a MerchantRule from a user correction (spec §12.2/§14) and apply it
+   * to existing not-yet-reviewed transactions from the same merchant. Returns
+   * the number of existing rows updated.
+   */
+  createFromCorrection(input: CreateRuleFromCorrection): Promise<number>;
+}
+
 export interface BudgetRepository {
   getMonth(year: number, month: number): Promise<BudgetMonth | null>;
   setBuffer(monthId: string, bufferCents: number): Promise<void>;
@@ -84,6 +102,7 @@ export interface Repositories {
   tags: TagRepository;
   transactions: TransactionRepository;
   recurring: RecurringRepository;
+  rules: RuleRepository;
   budget: BudgetRepository;
   review: ReviewRepository;
   insights: InsightRepository;

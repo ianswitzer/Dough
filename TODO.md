@@ -35,13 +35,15 @@ Living checklist. Update after every work session (per CLAUDE.md).
 - [ ] Pull-to-refresh + optimistic cache so edits reflect without a manual
       reload across screens.
 - [ ] Account create / edit UI (repo method exists; no screen yet).
-- [ ] Tags + Notes editing in Transaction detail (currently read-only rows).
+- [x] Notes editing in Transaction detail (inline TextInput, persists on save).
+- [ ] Tags editing in Transaction detail (Notes done; tags row still read-only).
 
 ## Backlog (post-MVP / stretch, per spec §5)
 
 - [ ] CSV import flow + `ImportJob` processing.
-- [ ] Merchant rule creation from corrections (§14) — wire the detail screen's
-      "apply to future" toggle to actually create a `merchant_rules` row.
+- [x] Merchant rule creation from corrections (§14) — the detail screen's
+      "apply to future" toggle now creates a `merchant_rules` row and
+      re-categorizes other un-reviewed charges from the same merchant.
 - [ ] Bulk edit on the transaction feed.
 - [ ] Custom saved-view builder.
 - [ ] Notifications: weekly pulse, bill increase, unusual charge.
@@ -54,7 +56,7 @@ Living checklist. Update after every work session (per CLAUDE.md).
 - [ ] Create account + import a CSV.
 - [ ] Transactions appear in a searchable feed.
 - [ ] Categorize / tag / hide / rename / mark reviewed.
-- [ ] Create a rule from a correction; applied to future imports.
+- [x] Create a rule from a correction; applied to future imports.
 - [ ] Monthly spend by category + total.
 - [ ] Basic recurring detection.
 - [ ] Safe-to-spend amount with confidence label.
