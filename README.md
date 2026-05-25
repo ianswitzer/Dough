@@ -19,9 +19,10 @@ Transactions, Plan, Insights, Settings) and the detail overlays are built and
 wired to Supabase through the repository layer; dark mode ships. The client now
 also refreshes generated insights, review items, and recurring candidates from
 transaction history when the relevant screens load. Profile, financial account,
-budget, category, tag, rule, and saved-view edit screens are in place. `tsc
---noEmit` and `expo-doctor` are clean. Next step is verifying against a live
-Supabase project on a simulator/device — see [TODO.md](TODO.md).
+budget, category, tag, rule, saved-view, data export, and account deletion
+screens are in place. `tsc --noEmit` and `expo-doctor` are clean. Next step is
+verifying against a live Supabase project on a simulator/device — see
+[TODO.md](TODO.md).
 
 ## Getting started
 
@@ -92,6 +93,18 @@ supabase secrets set PLAID_ANDROID_PACKAGE_NAME=com.yourcompany.dough
 The current scaffold creates a Link token and exchanges a public token; durable
 Plaid item storage, encrypted access-token storage, account mapping, and
 transaction sync are still TODO.
+
+### 7. (Optional) Data export / account deletion functions
+
+The Data & account screen calls `data-export` and `account-delete` Supabase Edge
+Functions. `account-delete` requires a server-side service role key so it can
+delete the authenticated Supabase user:
+
+```bash
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY=...
+```
+
+Never expose that key through `EXPO_PUBLIC_*` variables or the app bundle.
 
 ## Project layout
 

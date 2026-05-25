@@ -48,6 +48,7 @@ function Guard() {
       <Stack.Screen name="settings/rules" options={{ presentation: 'modal' }} />
       <Stack.Screen name="views/edit" options={{ presentation: 'modal' }} />
       <Stack.Screen name="plaid" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="data/privacy" options={{ presentation: 'modal' }} />
       <Stack.Screen name="review" options={{ presentation: 'modal' }} />
       <Stack.Screen name="recurring" options={{ presentation: 'modal' }} />
     </Stack>

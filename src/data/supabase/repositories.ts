@@ -454,5 +454,17 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
         unwrap(await sb.from('saved_views').update(body).eq('id', id).select());
       },
     },
+
+    dataPrivacy: {
+      async exportData() {
+        const { data, error } = await sb.functions.invoke('data-export');
+        if (error) throw new Error(error.message);
+        return data as Record<string, unknown>;
+      },
+      async deleteAccount() {
+        const { error } = await sb.functions.invoke('account-delete', { body: {} });
+        if (error) throw new Error(error.message);
+      },
+    },
   };
 }

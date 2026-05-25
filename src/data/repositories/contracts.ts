@@ -133,6 +133,11 @@ export interface SavedViewRepository {
   update(id: string, patch: SavedViewPatch): Promise<void>;
 }
 
+export interface DataPrivacyRepository {
+  exportData(): Promise<Record<string, unknown>>;
+  deleteAccount(): Promise<void>;
+}
+
 // The bundle injected through React context.
 export interface Repositories {
   profile: ProfileRepository;
@@ -147,4 +152,5 @@ export interface Repositories {
   insights: InsightRepository;
   intelligence: IntelligenceRepository;
   savedViews: SavedViewRepository;
+  dataPrivacy: DataPrivacyRepository;
 }

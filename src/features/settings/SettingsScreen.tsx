@@ -129,8 +129,8 @@ export function SettingsScreen() {
         <View style={{ paddingHorizontal: 16, paddingBottom: 14 }}>
           <SectionLabel>Data</SectionLabel>
           <Card padded={false}>
-            <SettingsRow isFirst glyph="↓" label="Export your data" />
-            <SettingsRow glyph="×" glyphBg={colors.roseSoft} glyphFg={colors.roseInk} label="Delete account & data" />
+            <SettingsRow isFirst glyph="↓" label="Export your data" onPress={() => router.push('/data/privacy')} />
+            <SettingsRow glyph="×" glyphBg={colors.roseSoft} glyphFg={colors.roseInk} label="Delete account & data" onPress={() => router.push('/data/privacy')} />
             <SettingsRow glyph="⏻" label="Sign out" onPress={signOut} />
           </Card>
         </View>

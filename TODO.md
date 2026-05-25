@@ -52,6 +52,7 @@ Living checklist. Update after every work session (per CLAUDE.md).
       public-token backend boundary.
 - [x] Plaid Edge Function scaffolds for link-token creation and public-token
       exchange (secrets stay server-side; persistence/sync still TODO).
+- [x] Data export + account deletion UI and Edge Function scaffolds.
 - [ ] Optimistic cache so edits reflect instantly without a refetch round-trip.
 
 ## Backlog (post-MVP / stretch, per spec §5)
@@ -115,7 +116,7 @@ move is to run it (see README §4–5) and tap through before building more.
 
 ### Suggested next order of work
 1. Run + verify against live Supabase; fix any runtime issues found.
-2. Data export + account deletion (last hard acceptance criterion, §16).
+2. Verify data export + account deletion against deployed Edge Functions.
 3. CSV import (`ImportJob`) — unlocks "create account + import CSV".
 4. Add Plaid SDK wiring, secure item/access-token persistence, account mapping,
    and transaction sync.
@@ -136,4 +137,5 @@ move is to run it (see README §4–5) and tap through before building more.
 - [x] Review items for uncategorized / recurring / unusual / subscription up.
 - [x] ≥3 insight types (monthly summary, spending drift, unusual transaction,
       recurring change; rows depend on available transaction history).
-- [ ] Data export + account deletion.
+- [~] Data export + account deletion (UI + functions scaffolded; needs deployed
+      function verification with `SUPABASE_SERVICE_ROLE_KEY`).
