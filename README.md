@@ -59,6 +59,20 @@ order.
 npm run ios       # or: npm run android / npm run web
 ```
 
+> **Auth for local testing:** Supabase requires email confirmation on sign-up by
+> default, so a new account has no session until the email link is clicked. For
+> fast local testing, turn it off: Supabase Dashboard → **Authentication →
+> Sign In / Providers → Email → disable "Confirm email"**. Then sign-up logs you
+> straight into onboarding.
+
+### 5. (Optional) Load sample data
+
+The schema seeds default categories/tags/views but no transactions, so the
+screens start empty. To make the app look like the design, sign up first, then
+run [`supabase/seed_sample_data.sql`](supabase/seed_sample_data.sql) in the
+Supabase SQL editor (set `v_email` to your sign-up email at the top). It's
+idempotent — safe to re-run.
+
 ## Project layout
 
 ```
