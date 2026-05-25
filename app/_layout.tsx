@@ -5,7 +5,7 @@ import {
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter';
 import { SpaceMono_400Regular } from '@expo-google-fonts/space-mono';
 import { useFonts } from 'expo-font';
-import { Slot, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import { View } from 'react-native';
@@ -29,7 +29,19 @@ function Guard() {
     else if (session && inAuth) router.replace('/(tabs)');
   }, [session, initializing, segments, router]);
 
-  return <Slot />;
+  // Overlay routes (transaction / category / review / recurring) present as
+  // modals over the tabs, matching the design's in-frame sheets.
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(onboarding)" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="transaction/[id]" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="category/[slug]" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="review" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="recurring" options={{ presentation: 'modal' }} />
+    </Stack>
+  );
 }
 
 function Root() {

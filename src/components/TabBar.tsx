@@ -1,0 +1,58 @@
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import React from 'react';
+import { Pressable, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { useTheme } from '../theme';
+import { Icons, type IconName, Txt } from './ui';
+
+// Bottom nav matching the design: line icon + label, accent when active.
+const TABS: { name: string; label: string; icon: IconName }[] = [
+  { name: 'index', label: 'Today', icon: 'today' },
+  { name: 'transactions', label: 'Transactions', icon: 'list' },
+  { name: 'plan', label: 'Plan', icon: 'plan' },
+  { name: 'insights', label: 'Insights', icon: 'spark' },
+  { name: 'settings', label: 'Settings', icon: 'gear' },
+];
+
+export function TabBar({ state, navigation }: BottomTabBarProps) {
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
+
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        paddingTop: 8,
+        paddingBottom: Math.max(insets.bottom, 10),
+        paddingHorizontal: 8,
+        backgroundColor: colors.paper,
+        borderTopWidth: 0.5,
+        borderTopColor: colors.hairline2,
+      }}
+    >
+      {state.routes.map((route, i) => {
+        const tab = TABS.find((t) => t.name === route.name);
+        if (!tab) return null;
+        const focused = state.index === i;
+        const color = focused ? colors.accentInk : colors.muted;
+        const Icon = Icons[tab.icon];
+        return (
+          <Pressable
+            key={route.key}
+            onPress={() => {
+              const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+              if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
+            }}
+            style={{ flex: 1, alignItems: 'center', gap: 4, paddingVertical: 4 }}
+          >
+            <Icon color={color} opacity={focused ? 1 : 0.85} />
+            <Txt variant={focused ? 'semibold' : 'medium'} color={color} style={{ fontSize: 10.5 }}>
+              {tab.label}
+            </Txt>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
