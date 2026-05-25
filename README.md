@@ -76,6 +76,23 @@ run [`supabase/seed_sample_data.sql`](supabase/seed_sample_data.sql) in the
 Supabase SQL editor (set `v_email` to your sign-up email at the top). It's
 idempotent — safe to re-run.
 
+### 6. (Optional) Plaid sync scaffold
+
+The app has a Plaid starter screen and Supabase Edge Function scaffolds for
+`plaid-create-link-token` and `plaid-exchange-public-token`. Before enabling
+the client button, deploy those functions and set secrets in Supabase, not in
+Expo `.env`:
+
+```bash
+supabase secrets set PLAID_CLIENT_ID=... PLAID_SECRET=... PLAID_ENV=sandbox
+# optional for Android OAuth institutions:
+supabase secrets set PLAID_ANDROID_PACKAGE_NAME=com.yourcompany.dough
+```
+
+The current scaffold creates a Link token and exchanges a public token; durable
+Plaid item storage, encrypted access-token storage, account mapping, and
+transaction sync are still TODO.
+
 ## Project layout
 
 ```

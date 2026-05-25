@@ -50,6 +50,8 @@ Living checklist. Update after every work session (per CLAUDE.md).
 - [x] Saved views edit UI (rename + filter JSON editing).
 - [x] Plaid connection starter screen documenting the required Link-token /
       public-token backend boundary.
+- [x] Plaid Edge Function scaffolds for link-token creation and public-token
+      exchange (secrets stay server-side; persistence/sync still TODO).
 - [ ] Optimistic cache so edits reflect instantly without a refetch round-trip.
 
 ## Backlog (post-MVP / stretch, per spec §5)
@@ -92,9 +94,11 @@ move is to run it (see README §4–5) and tap through before building more.
   friendly builder UI is still TODO.
 - **Transaction detail "Account" and "Track as recurring / Split" affordances**
   from the design were not carried over; account is fixed at create time.
-- **Plaid is scaffolded, not integrated.** The app has a Plaid starter screen,
-  but no dependency, Link launch, Supabase Edge Functions, Plaid secrets, or
-  token exchange yet. Keep Plaid secrets server-side only.
+- **Plaid is scaffolded, not fully integrated.** The app has a Plaid starter
+  screen and Supabase Edge Function stubs for creating Link tokens and
+  exchanging public tokens, but no client SDK/Link launch, encrypted token
+  persistence, account mapping, or transaction sync yet. Keep Plaid secrets
+  server-side only.
 
 ### Gotchas / constraints
 - **Stuck on SDK 54 for Expo Go**, not the npm-latest 56 — see CLAUDE.md for
@@ -113,8 +117,8 @@ move is to run it (see README §4–5) and tap through before building more.
 1. Run + verify against live Supabase; fix any runtime issues found.
 2. Data export + account deletion (last hard acceptance criterion, §16).
 3. CSV import (`ImportJob`) — unlocks "create account + import CSV".
-4. Add Plaid Edge Functions + SDK wiring (`link_token` create, Link launch,
-   public-token exchange, item/account persistence).
+4. Add Plaid SDK wiring, secure item/access-token persistence, account mapping,
+   and transaction sync.
 5. Move intelligence generation to a scheduled/server-side job if client
    refresh proves too slow or too easy to race in real use.
 
