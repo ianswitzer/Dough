@@ -95,6 +95,20 @@ export interface InsightRepository {
   list(): Promise<Insight[]>;
 }
 
+export type IntelligenceGenerationResult = {
+  insightsCreated: number;
+  reviewItemsCreated: number;
+  recurringCandidatesCreated: number;
+};
+
+export interface IntelligenceRepository {
+  /**
+   * Refresh generated insights, review items, and recurring candidates from the
+   * user's current transactions. Implementations must be idempotent.
+   */
+  generate(): Promise<IntelligenceGenerationResult>;
+}
+
 export interface SavedViewRepository {
   list(): Promise<SavedView[]>;
 }
@@ -111,5 +125,6 @@ export interface Repositories {
   budget: BudgetRepository;
   review: ReviewRepository;
   insights: InsightRepository;
+  intelligence: IntelligenceRepository;
   savedViews: SavedViewRepository;
 }

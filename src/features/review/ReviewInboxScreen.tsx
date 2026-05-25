@@ -13,7 +13,10 @@ import { ReviewBadge } from '../shared/ReviewBadge';
 // the list optimistically; an "All clear" empty state rewards reaching zero.
 export function ReviewInboxScreen() {
   const repos = useRepositories();
-  const { data, loading, error } = useAsync(() => repos.review.listOpen(), []);
+  const { data, loading, error } = useAsync(async () => {
+    await repos.intelligence.generate();
+    return repos.review.listOpen();
+  }, []);
   const [items, setItems] = useState<ReviewItem[]>([]);
   const [done, setDone] = useState(0);
 

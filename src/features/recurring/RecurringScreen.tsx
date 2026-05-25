@@ -28,7 +28,10 @@ export function RecurringScreen() {
   const { bySlug } = useCategories();
   const now = new Date();
 
-  const { data, loading, error } = useAsync(() => repos.recurring.list(), []);
+  const { data, loading, error } = useAsync(async () => {
+    await repos.intelligence.generate();
+    return repos.recurring.list();
+  }, []);
 
   const committed = (data ?? [])
     .filter((b) => !b.isIncome)
@@ -48,7 +51,7 @@ export function RecurringScreen() {
   return (
     <Screen tail={40}>
       <ModalHeader backLabel="Today" />
-      <Header subtitle={`${(data ?? []).filter((b) => !b.isIncome).length} confirmed series`} title="Recurring bills" />
+      <Header subtitle={`${(data ?? []).filter((b) => !b.isIncome).length} tracked and candidate series`} title="Recurring bills" />
 
       <AsyncBoundary loading={loading} error={error}>
         <View style={{ paddingHorizontal: 16, paddingBottom: 14 }}>

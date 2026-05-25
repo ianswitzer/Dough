@@ -18,6 +18,7 @@ import {
   toTag,
   toTransaction,
 } from './mappers';
+import { createSupabaseIntelligenceRepository } from './intelligence/repository';
 
 const TX_SELECT =
   '*, categories(slug), transaction_tags(tags(name))';
@@ -303,7 +304,35 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
         return (rows as any[]).map(toReviewItem);
       },
       async setStatus(id, status) {
+        const item = unwrap(
+          await sb
+            .from('review_items')
+            .select('kind, related_object_type, related_object_id')
+            .eq('id', id)
+            .maybeSingle(),
+        ) as any | null;
         unwrap(await sb.from('review_items').update({ status }).eq('id', id).select());
+        if (status !== 'completed' || !item?.related_object_id) return;
+        if (item.kind === 'recurring_candidate' && item.related_object_type === 'recurring_transaction') {
+          unwrap(
+            await sb
+              .from('recurring_transactions')
+              .update({ status: 'confirmed' })
+              .eq('id', item.related_object_id)
+              .select(),
+          );
+        }
+        if (item.related_object_type === 'transaction') {
+          const patch: Record<string, unknown> = { review_status: 'reviewed' };
+          if (item.kind === 'unusual_charge') patch.flag = null;
+          unwrap(
+            await sb
+              .from('transactions')
+              .update(patch)
+              .eq('id', item.related_object_id)
+              .select(),
+          );
+        }
       },
     },
 
@@ -315,6 +344,8 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
         return (rows as any[]).map(toInsight);
       },
     },
+
+    intelligence: createSupabaseIntelligenceRepository(sb),
 
     savedViews: {
       async list() {

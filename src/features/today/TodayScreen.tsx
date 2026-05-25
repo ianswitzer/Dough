@@ -33,6 +33,7 @@ export function TodayScreen() {
 
   const now = new Date();
   const { data, loading, error, refetch } = useAsync(async () => {
+    await repos.intelligence.generate();
     const [profile, accounts, recurring, budgetMonth, review, insights] = await Promise.all([
       repos.profile.getCurrent(),
       repos.accounts.list(),

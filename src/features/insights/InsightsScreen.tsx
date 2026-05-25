@@ -25,6 +25,7 @@ export function InsightsScreen() {
   const now = new Date();
 
   const { data, loading, error, refetch } = useAsync(async () => {
+    await repos.intelligence.generate();
     const [insights, budgets, views] = await Promise.all([
       repos.insights.list(),
       repos.budget.listCategoryBudgets(now.getFullYear(), now.getMonth() + 1),

@@ -40,6 +40,9 @@ Living checklist. Update after every work session (per CLAUDE.md).
       account, category).
 - [x] Notes editing in Transaction detail (inline TextInput, persists on save).
 - [x] Tags editing in Transaction detail (tag picker, persists via setTags).
+- [x] Client intelligence generator: refreshes monthly insights, review inbox
+      items, recurring candidates, and recurring transaction flags from live
+      transactions when Today/Insights/Review/Recurring load.
 - [ ] Optimistic cache so edits reflect instantly without a refetch round-trip.
 - [ ] Account edit / deactivate UI.
 
@@ -65,14 +68,14 @@ hit a usage limit. Assume runtime bugs are still possible; the safest first
 move is to run it (see README §4–5) and tap through before building more.
 
 ### Looks done but is NOT wired (don't be fooled by the UI)
-- **Insights & recurring are read-only from the DB.** `services/insights.ts`
-  (`computeCategoryDrift`) and `services/recurringDetection.ts`
-  (`detectRecurring`) are written and unit-shaped but have **zero callers** —
-  nothing generates `insights`, `review_items`, or `recurring_transactions`
-  rows. Today/Insights only show what the seed (or a future generator) put
-  there. Wiring a generator (client job or Supabase Edge Function) is the main
-  remaining "intelligence loop" work (spec §13, Phase 3). `computeSafeToSpend`
-  IS wired (Today).
+- **Insight/review/recurring generation is now wired as a client refresh job,**
+  not as a background Edge Function. `repos.intelligence.generate()` calls
+  `computeCategoryDrift` and `detectRecurring`, refreshes current-month
+  `insights`, creates open `review_items`, upserts candidate
+  `recurring_transactions`, and marks matching transactions as recurring
+  candidates before Today/Insights/Review/Recurring read. This still needs
+  live Supabase/device verification and may later move server-side for
+  scheduled/background generation.
 - **Settings rows are mostly static.** Categories, Tags, Rules, the recurring/
   notification toggles, and Buffer/Period/Confidence don't navigate or persist
   (except Appearance, which works, and Add account, which works). The toggles
@@ -97,11 +100,11 @@ move is to run it (see README §4–5) and tap through before building more.
 
 ### Suggested next order of work
 1. Run + verify against live Supabase; fix any runtime issues found.
-2. Insight/review/recurring generator (wires the two dormant services) — biggest
-   product gap and covers 3 acceptance criteria at once.
-3. Data export + account deletion (last hard acceptance criterion, §16).
-4. CSV import (`ImportJob`) — unlocks "create account + import CSV".
-5. Make the static Settings rows real (categories/tags/rules screens).
+2. Data export + account deletion (last hard acceptance criterion, §16).
+3. CSV import (`ImportJob`) — unlocks "create account + import CSV".
+4. Make the static Settings rows real (categories/tags/rules screens).
+5. Move intelligence generation to a scheduled/server-side job if client
+   refresh proves too slow or too easy to race in real use.
 
 ## Acceptance criteria to verify before "MVP done" (spec §19)
 
@@ -110,9 +113,11 @@ move is to run it (see README §4–5) and tap through before building more.
 - [~] Categorize / tag / hide / mark reviewed (done); rename merchant (not in UI).
 - [x] Create a rule from a correction; applied to future imports.
 - [x] Monthly spend by category + total (Plan, computed from live transactions).
-- [ ] Basic recurring detection (algorithm in services/, NOT wired to write rows).
+- [x] Basic recurring detection (client generator writes candidate rows and
+      marks matching transactions; confirming from review marks the series
+      confirmed).
 - [x] Safe-to-spend amount with confidence label (Today).
-- [ ] Review items for uncategorized / recurring / unusual / subscription up
-      (display done; nothing generates them — see Handoff notes).
-- [ ] ≥3 insight types (display done; computeCategoryDrift unwired, no generator).
+- [x] Review items for uncategorized / recurring / unusual / subscription up.
+- [x] ≥3 insight types (monthly summary, spending drift, unusual transaction,
+      recurring change; rows depend on available transaction history).
 - [ ] Data export + account deletion.
