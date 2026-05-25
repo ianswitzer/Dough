@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Dough",
+    "slug": "dough",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "dough",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "co.dough.app"
+    },
+    "android": {
+      "package": "co.dough.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": ["expo-router", "expo-font"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Secrets — NEVER commit these
+.env
+.env.local
+.env.*.local
+**/supabase/.env
+**/supabase/.branches
+**/supabase/.temp
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# Editor
+.vscode/
+.idea/
+
+# Build artifacts
+*.tsbuildinfo
+
+# Misc working files used during design handoff (not source)
+/tmp_design/
