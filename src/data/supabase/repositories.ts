@@ -38,6 +38,15 @@ const monthRange = (year: number, month: number) => {
   return { start, end };
 };
 
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 48) || 'category';
+
 // Shared: sum of expense (positive) amounts per category slug for a month,
 // excluding hidden. Used by both the transactions and budget repos.
 async function spendByCategory(
@@ -135,6 +144,65 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
           await sb.from('categories').select('*').eq('is_active', true).order('sort_order'),
         );
         return (rows as any[]).map(toCategory);
+      },
+      async create(input) {
+        const { data: auth } = await sb.auth.getUser();
+        const uid = auth.user!.id;
+        const existing = unwrap(await sb.from('categories').select('slug, sort_order').eq('user_id', uid));
+        const slugs = new Set((existing as any[]).map((row) => row.slug as string));
+        const baseSlug = slugify(input.name);
+        let slug = baseSlug;
+        let n = 2;
+        while (slugs.has(slug)) {
+          slug = `${baseSlug}-${n}`;
+          n += 1;
+        }
+        const sortOrder = Math.max(0, ...(existing as any[]).map((row) => row.sort_order ?? 0)) + 10;
+        const row = unwrap(
+          await sb
+            .from('categories')
+            .insert({
+              user_id: uid,
+              name: input.name,
+              slug,
+              type: input.type ?? 'expense',
+              tint: input.tint ?? 'muted',
+              sort_order: sortOrder,
+              is_default: false,
+            })
+            .select()
+            .single(),
+        );
+        const cat = toCategory(row);
+        if (input.monthlyLimitCents != null) {
+          const now = new Date();
+          const month = unwrap(
+            await sb
+              .from('budget_months')
+              .select('id')
+              .eq('year', now.getFullYear())
+              .eq('month', now.getMonth() + 1)
+              .maybeSingle(),
+          ) as any | null;
+          if (month) {
+            unwrap(
+              await sb
+                .from('category_budgets')
+                .upsert(
+                  {
+                    user_id: uid,
+                    budget_month_id: month.id,
+                    category_id: cat.id,
+                    limit_cents: input.monthlyLimitCents,
+                    is_active: true,
+                  },
+                  { onConflict: 'budget_month_id,category_id' },
+                )
+                .select(),
+            );
+          }
+        }
+        return cat;
       },
       async update(id, patch) {
         const body: Record<string, unknown> = {};

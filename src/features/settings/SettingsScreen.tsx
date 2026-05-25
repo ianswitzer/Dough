@@ -108,7 +108,7 @@ export function SettingsScreen() {
         <View style={{ paddingHorizontal: 16, paddingBottom: 14 }}>
           <SectionLabel>Money</SectionLabel>
           <Card padded={false}>
-            <SettingsRow isFirst glyph="◐" label="Categories" sub="10 default" onPress={() => router.push('/settings/categories')} />
+            <SettingsRow isFirst glyph="◐" label="Categories" sub="Manage names and colors" onPress={() => router.push('/settings/categories')} />
             <SettingsRow glyph="◔" label="Tags" sub="Household, Personal, Reimbursable, Trip" onPress={() => router.push('/settings/tags')} />
             <SettingsRow glyph="⊟" label="Rules" sub="Remembered corrections" onPress={() => router.push('/settings/rules')} />
             <SettingsRow glyph="↻" label="Recurring detection" rightControl={<Toggle on />} />

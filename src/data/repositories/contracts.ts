@@ -15,6 +15,7 @@ import type {
   MerchantRule,
   MerchantRulePatch,
   NewAccount,
+  NewCategory,
   NewTag,
   NewTransaction,
   Profile,
@@ -43,6 +44,7 @@ export interface AccountRepository {
 
 export interface CategoryRepository {
   list(): Promise<Category[]>;
+  create(input: NewCategory): Promise<Category>;
   update(id: string, patch: CategoryPatch): Promise<void>;
 }
 

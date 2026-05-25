@@ -45,8 +45,11 @@ Living checklist. Update after every work session (per CLAUDE.md).
       transactions when Today/Insights/Review/Recurring load.
 - [x] Profile edit UI (Settings → profile card → display-name form).
 - [x] Account edit / deactivate UI.
-- [x] Budget edit UI (Plan → + / Edit → category limit form).
+- [x] Category-centric budget editing (Plan → category → edit name + monthly
+      budget; Plan `+` creates a new category).
 - [x] Categories / Tags / Rules settings screens with basic edit flows.
+- [x] Category detail transaction rows open transaction detail.
+- [x] Rules edit UI uses human labels and editable category/hidden outcomes.
 - [x] Saved views edit UI (rename + filter JSON editing).
 - [x] Plaid connection starter screen documenting the required Link-token /
       public-token backend boundary.

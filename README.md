@@ -19,8 +19,9 @@ Transactions, Plan, Insights, Settings) and the detail overlays are built and
 wired to Supabase through the repository layer; dark mode ships. The client now
 also refreshes generated insights, review items, and recurring candidates from
 transaction history when the relevant screens load. Profile, financial account,
-budget, category, tag, rule, saved-view, data export, and account deletion
-screens are in place. `tsc --noEmit` and `expo-doctor` are clean. Next step is
+category detail owns category name/budget edits, Plan `+` creates a category,
+and tag/rule/saved-view/data export/account deletion screens are in place.
+`tsc --noEmit` and `expo-doctor` are clean. Next step is
 verifying against a live Supabase project on a simulator/device — see
 [TODO.md](TODO.md).
 

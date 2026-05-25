@@ -1,5 +1,5 @@
-import { useRouter } from 'expo-router';
-import React from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback } from 'react';
 import { Pressable, View } from 'react-native';
 
 import {
@@ -38,6 +38,12 @@ export function PlanScreen() {
     return { month, budgets, recurring };
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
+
   const income = data?.recurring.find((r) => r.isIncome);
 
   return (
@@ -46,7 +52,7 @@ export function PlanScreen() {
         subtitle={`${now.toLocaleDateString('en-US', { month: 'long' })} plan · day ${now.getDate()}`}
         title="Plan"
         action={
-          <IconButton onPress={() => router.push('/budget/edit')}>
+          <IconButton onPress={() => router.push('/category/new')}>
             <Icons.plus color={colors.ink2} />
           </IconButton>
         }
@@ -105,7 +111,7 @@ export function PlanScreen() {
               {/* Categories */}
               {data.budgets.length > 0 ? (
                 <View style={{ paddingHorizontal: 16, paddingBottom: 14 }}>
-                  <SectionLabel right="Edit →" onPressRight={() => router.push('/budget/edit')}>Categories</SectionLabel>
+                  <SectionLabel>Categories</SectionLabel>
                   <Card padded={false}>
                     {data.budgets.map((b, i) => {
                       const cat = bySlug[b.categorySlug];

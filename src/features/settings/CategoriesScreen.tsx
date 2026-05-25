@@ -52,12 +52,12 @@ function CategoryEditor({ category }: { category: Category }) {
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <CategoryDot name={name} tintKey={category.tint} size={34} />
         <View style={{ flex: 1 }}>
-          <TextField label={category.slug} value={name} onChangeText={setName} />
+          <TextField label="Display name" value={name} onChangeText={setName} />
         </View>
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <Txt color={colors.muted} style={{ flex: 1, fontSize: 12 }}>
-          {category.type} · {category.tint}
+          {category.type} · {category.tint} · key: {category.slug}
         </Txt>
         {saved ? <Txt color={colors.sageInk} style={{ fontSize: 12 }}>Saved</Txt> : null}
         <PrimaryButton onPress={save} loading={saving} disabled={!name.trim()} style={{ width: 96, paddingVertical: 10 }}>

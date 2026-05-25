@@ -50,6 +50,13 @@ export type Category = {
   isActive: boolean;
 };
 
+export type NewCategory = {
+  name: string;
+  type?: Category['type'];
+  tint?: string;
+  monthlyLimitCents?: number;
+};
+
 export type CategoryPatch = Partial<Pick<Category, 'name' | 'tint' | 'sortOrder' | 'isActive'>>;
 
 export type Tag = {

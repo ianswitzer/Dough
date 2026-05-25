@@ -1,10 +1,13 @@
-import React from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback } from 'react';
 import { View } from 'react-native';
 
 import {
   AsyncBoundary,
   Card,
   CategoryDot,
+  IconButton,
+  Icons,
   MoneyDisplay,
   ProgressBar,
   Screen,
@@ -23,18 +26,25 @@ import { useCategories } from '../shared/useCategories';
 // recent transactions — explain WHY a category is high, not just that it is.
 export function CategoryDetailScreen({ slug }: { slug: string }) {
   const { colors, radius } = useTheme();
+  const router = useRouter();
   const repos = useRepositories();
   const { bySlug } = useCategories();
   const cat = bySlug[slug];
   const now = new Date();
 
-  const { data, loading, error } = useAsync(async () => {
+  const { data, loading, error, refetch } = useAsync(async () => {
     const [budgets, txs] = await Promise.all([
       repos.budget.listCategoryBudgets(now.getFullYear(), now.getMonth() + 1),
       cat ? repos.transactions.list({ categoryId: cat.id, hidden: false }) : Promise.resolve([]),
     ]);
     return { budget: budgets.find((b) => b.categorySlug === slug), txs };
   }, [slug, cat?.id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
 
   // Top merchants by spend within the category.
   const merchants = React.useMemo(() => {
@@ -46,9 +56,9 @@ export function CategoryDetailScreen({ slug }: { slug: string }) {
   return (
     <Screen tail={40}>
       <ModalHeader backLabel="Plan" />
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 22, paddingBottom: 16 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 22, paddingBottom: 16, paddingTop: 6 }}>
         <CategoryDot name={cat?.name ?? slug} tintKey={cat?.tint ?? 'muted'} size={44} />
-        <View>
+        <View style={{ flex: 1 }}>
           <Txt variant="display" style={{ fontSize: 26, letterSpacing: -0.3 }}>
             {cat?.name ?? slug}
           </Txt>
@@ -56,6 +66,9 @@ export function CategoryDetailScreen({ slug }: { slug: string }) {
             {(data?.txs ?? []).length} transactions this month
           </Txt>
         </View>
+        <IconButton onPress={() => router.push(`/category/${slug}/edit`)}>
+          <Icons.gear color={colors.ink2} />
+        </IconButton>
       </View>
 
       <AsyncBoundary loading={loading} error={error}>
@@ -121,7 +134,13 @@ export function CategoryDetailScreen({ slug }: { slug: string }) {
                   <SectionLabel>Recent</SectionLabel>
                   <Card padded={false}>
                     {data.txs.slice(0, 5).map((t, i) => (
-                      <TxRow key={t.id} tx={t} category={cat} isLast={i === Math.min(5, data.txs.length) - 1} />
+                      <TxRow
+                        key={t.id}
+                        tx={t}
+                        category={cat}
+                        isLast={i === Math.min(5, data.txs.length) - 1}
+                        onPress={() => router.push(`/transaction/${t.id}`)}
+                      />
                     ))}
                   </Card>
                 </View>
