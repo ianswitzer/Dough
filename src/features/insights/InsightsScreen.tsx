@@ -1,5 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
+import { useRouter } from 'expo-router';
 
 import {
   AsyncBoundary,
@@ -20,6 +21,7 @@ import { useCategories } from '../shared/useCategories';
 
 export function InsightsScreen() {
   const { colors, radius } = useTheme();
+  const router = useRouter();
   const repos = useRepositories();
   const { bySlug } = useCategories();
   const now = new Date();
@@ -101,7 +103,7 @@ export function InsightsScreen() {
             {/* Saved views */}
             {data.views.length > 0 ? (
               <View style={{ paddingHorizontal: 16, paddingBottom: 14 }}>
-                <SectionLabel right="Edit →">Saved views</SectionLabel>
+                <SectionLabel right="Edit →" onPressRight={() => router.push('/views/edit')}>Saved views</SectionLabel>
                 <Card padded={false}>
                   {data.views.map((v, i) => (
                     <View

@@ -7,6 +7,7 @@ import type {
   BudgetMonth,
   Category,
   Insight,
+  MerchantRule,
   Profile,
   RecurringTransaction,
   ReviewItem,
@@ -53,6 +54,17 @@ export const toTag = (r: any): Tag => ({
   name: r.name,
   tagType: r.tag_type,
   color: r.color ?? null,
+});
+
+export const toMerchantRule = (r: any): MerchantRule => ({
+  id: r.id,
+  matchType: r.match_type,
+  matchValue: r.match_value,
+  setCategoryId: r.set_category_id ?? null,
+  setHiddenFromBudget: r.set_hidden_from_budget ?? null,
+  renameTo: r.rename_to ?? null,
+  priority: r.priority,
+  isActive: r.is_active,
 });
 
 export const toTransaction = (r: any): Transaction => ({

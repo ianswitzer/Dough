@@ -5,17 +5,25 @@
 
 import type {
   Account,
+  AccountPatch,
   BudgetMonth,
   Category,
   CategoryBudget,
+  CategoryBudgetPatch,
+  CategoryPatch,
   Insight,
+  MerchantRule,
+  MerchantRulePatch,
   NewAccount,
+  NewTag,
   NewTransaction,
   Profile,
   RecurringTransaction,
   ReviewItem,
   SavedView,
+  SavedViewPatch,
   Tag,
+  TagPatch,
   Transaction,
   TransactionPatch,
 } from '../types';
@@ -27,15 +35,22 @@ export interface ProfileRepository {
 
 export interface AccountRepository {
   list(): Promise<Account[]>;
+  get(id: string): Promise<Account | null>;
   create(input: NewAccount): Promise<Account>;
+  update(id: string, patch: AccountPatch): Promise<void>;
+  deactivate(id: string): Promise<void>;
 }
 
 export interface CategoryRepository {
   list(): Promise<Category[]>;
+  update(id: string, patch: CategoryPatch): Promise<void>;
 }
 
 export interface TagRepository {
   list(): Promise<Tag[]>;
+  create(input: NewTag): Promise<Tag>;
+  update(id: string, patch: TagPatch): Promise<void>;
+  deactivate(id: string): Promise<void>;
 }
 
 export interface TransactionQuery {
@@ -72,6 +87,9 @@ export interface CreateRuleFromCorrection {
 }
 
 export interface RuleRepository {
+  list(): Promise<MerchantRule[]>;
+  update(id: string, patch: MerchantRulePatch): Promise<void>;
+  deactivate(id: string): Promise<void>;
   /**
    * Persist a MerchantRule from a user correction (spec §12.2/§14) and apply it
    * to existing not-yet-reviewed transactions from the same merchant. Returns
@@ -84,6 +102,7 @@ export interface BudgetRepository {
   getMonth(year: number, month: number): Promise<BudgetMonth | null>;
   setBuffer(monthId: string, bufferCents: number): Promise<void>;
   listCategoryBudgets(year: number, month: number): Promise<CategoryBudget[]>;
+  setCategoryLimit(monthId: string, categoryId: string, limitCents: number): Promise<void>;
 }
 
 export interface ReviewRepository {
@@ -111,6 +130,7 @@ export interface IntelligenceRepository {
 
 export interface SavedViewRepository {
   list(): Promise<SavedView[]>;
+  update(id: string, patch: SavedViewPatch): Promise<void>;
 }
 
 // The bundle injected through React context.

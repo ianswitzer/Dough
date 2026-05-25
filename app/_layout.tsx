@@ -40,6 +40,14 @@ function Guard() {
       <Stack.Screen name="transaction/[id]" options={{ presentation: 'modal' }} />
       <Stack.Screen name="category/[slug]" options={{ presentation: 'modal' }} />
       <Stack.Screen name="account/new" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="account/[id]" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="profile" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="budget/edit" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="settings/categories" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="settings/tags" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="settings/rules" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="views/edit" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="plaid" options={{ presentation: 'modal' }} />
       <Stack.Screen name="review" options={{ presentation: 'modal' }} />
       <Stack.Screen name="recurring" options={{ presentation: 'modal' }} />
     </Stack>

@@ -46,7 +46,7 @@ export function PlanScreen() {
         subtitle={`${now.toLocaleDateString('en-US', { month: 'long' })} plan · day ${now.getDate()}`}
         title="Plan"
         action={
-          <IconButton>
+          <IconButton onPress={() => router.push('/budget/edit')}>
             <Icons.plus color={colors.ink2} />
           </IconButton>
         }
@@ -105,7 +105,7 @@ export function PlanScreen() {
               {/* Categories */}
               {data.budgets.length > 0 ? (
                 <View style={{ paddingHorizontal: 16, paddingBottom: 14 }}>
-                  <SectionLabel>Categories</SectionLabel>
+                  <SectionLabel right="Edit →" onPressRight={() => router.push('/budget/edit')}>Categories</SectionLabel>
                   <Card padded={false}>
                     {data.budgets.map((b, i) => {
                       const cat = bySlug[b.categorySlug];

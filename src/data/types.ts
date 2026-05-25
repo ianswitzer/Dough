@@ -35,6 +35,10 @@ export type Account = {
   isActive: boolean;
 };
 
+export type AccountPatch = Partial<
+  Pick<Account, 'name' | 'institutionName' | 'type' | 'currentBalanceCents' | 'availableBalanceCents' | 'isActive'>
+>;
+
 export type Category = {
   id: string;
   name: string;
@@ -46,12 +50,37 @@ export type Category = {
   isActive: boolean;
 };
 
+export type CategoryPatch = Partial<Pick<Category, 'name' | 'tint' | 'sortOrder' | 'isActive'>>;
+
 export type Tag = {
   id: string;
   name: string;
   tagType: string;
   color: string | null;
 };
+
+export type NewTag = {
+  name: string;
+  tagType?: string;
+  color?: string | null;
+};
+
+export type TagPatch = Partial<Pick<Tag, 'name' | 'tagType' | 'color'>>;
+
+export type MerchantRule = {
+  id: string;
+  matchType: string;
+  matchValue: string;
+  setCategoryId: string | null;
+  setHiddenFromBudget: boolean | null;
+  renameTo: string | null;
+  priority: number;
+  isActive: boolean;
+};
+
+export type MerchantRulePatch = Partial<
+  Pick<MerchantRule, 'matchValue' | 'setCategoryId' | 'setHiddenFromBudget' | 'renameTo' | 'priority' | 'isActive'>
+>;
 
 export type TxnType = 'expense' | 'income' | 'transfer' | 'refund' | 'adjustment';
 
@@ -103,7 +132,10 @@ export type CategoryBudget = {
   categorySlug: string;
   limitCents: number;
   spentCents: number; // computed from transactions
+  isActive: boolean;
 };
+
+export type CategoryBudgetPatch = Partial<Pick<CategoryBudget, 'limitCents' | 'isActive'>>;
 
 export type ReviewKind =
   | 'uncategorized_transaction'
@@ -151,6 +183,8 @@ export type SavedView = {
   filters: Record<string, unknown>;
   isDefault: boolean;
 };
+
+export type SavedViewPatch = Partial<Pick<SavedView, 'name' | 'filters'>>;
 
 // Patch type for transaction edits (only the fields the detail screen mutates).
 export type TransactionPatch = Partial<

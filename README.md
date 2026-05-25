@@ -18,9 +18,10 @@ MVP feature-complete on the client: auth + onboarding, all five tabs (Today,
 Transactions, Plan, Insights, Settings) and the detail overlays are built and
 wired to Supabase through the repository layer; dark mode ships. The client now
 also refreshes generated insights, review items, and recurring candidates from
-transaction history when the relevant screens load. `tsc --noEmit` and
-`expo-doctor` are clean. Next step is verifying against a live Supabase project
-on a simulator/device — see [TODO.md](TODO.md).
+transaction history when the relevant screens load. Profile, financial account,
+budget, category, tag, rule, and saved-view edit screens are in place. `tsc
+--noEmit` and `expo-doctor` are clean. Next step is verifying against a live
+Supabase project on a simulator/device — see [TODO.md](TODO.md).
 
 ## Getting started
 

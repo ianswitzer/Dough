@@ -11,6 +11,7 @@ import {
   toBudgetMonth,
   toCategory,
   toInsight,
+  toMerchantRule,
   toProfile,
   toRecurring,
   toReviewItem,
@@ -91,6 +92,10 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
         );
         return (rows as any[]).map(toAccount);
       },
+      async get(id) {
+        const row = unwrap(await sb.from('accounts').select('*').eq('id', id).maybeSingle());
+        return row ? toAccount(row) : null;
+      },
       async create(input) {
         const { data: auth } = await sb.auth.getUser();
         const row = unwrap(
@@ -107,6 +112,21 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
         );
         return toAccount(row);
       },
+      async update(id, patch) {
+        const body: Record<string, unknown> = {};
+        if (patch.name !== undefined) body.name = patch.name;
+        if (patch.institutionName !== undefined) body.institution_name = patch.institutionName;
+        if (patch.type !== undefined) body.type = patch.type;
+        if (patch.currentBalanceCents !== undefined)
+          body.current_balance_cents = patch.currentBalanceCents;
+        if (patch.availableBalanceCents !== undefined)
+          body.available_balance_cents = patch.availableBalanceCents;
+        if (patch.isActive !== undefined) body.is_active = patch.isActive;
+        unwrap(await sb.from('accounts').update(body).eq('id', id).select());
+      },
+      async deactivate(id) {
+        unwrap(await sb.from('accounts').update({ is_active: false }).eq('id', id).select());
+      },
     },
 
     categories: {
@@ -116,12 +136,46 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
         );
         return (rows as any[]).map(toCategory);
       },
+      async update(id, patch) {
+        const body: Record<string, unknown> = {};
+        if (patch.name !== undefined) body.name = patch.name;
+        if (patch.tint !== undefined) body.tint = patch.tint;
+        if (patch.sortOrder !== undefined) body.sort_order = patch.sortOrder;
+        if (patch.isActive !== undefined) body.is_active = patch.isActive;
+        unwrap(await sb.from('categories').update(body).eq('id', id).select());
+      },
     },
 
     tags: {
       async list() {
         const rows = unwrap(await sb.from('tags').select('*').eq('is_active', true).order('name'));
         return (rows as any[]).map(toTag);
+      },
+      async create(input) {
+        const { data: auth } = await sb.auth.getUser();
+        const row = unwrap(
+          await sb
+            .from('tags')
+            .insert({
+              user_id: auth.user!.id,
+              name: input.name,
+              tag_type: input.tagType ?? 'custom',
+              color: input.color ?? null,
+            })
+            .select()
+            .single(),
+        );
+        return toTag(row);
+      },
+      async update(id, patch) {
+        const body: Record<string, unknown> = {};
+        if (patch.name !== undefined) body.name = patch.name;
+        if (patch.tagType !== undefined) body.tag_type = patch.tagType;
+        if (patch.color !== undefined) body.color = patch.color;
+        unwrap(await sb.from('tags').update(body).eq('id', id).select());
+      },
+      async deactivate(id) {
+        unwrap(await sb.from('tags').update({ is_active: false }).eq('id', id).select());
       },
     },
 
@@ -197,6 +251,31 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
     },
 
     rules: {
+      async list() {
+        const rows = unwrap(
+          await sb
+            .from('merchant_rules')
+            .select('*')
+            .eq('is_active', true)
+            .order('priority', { ascending: false })
+            .order('created_at', { ascending: false }),
+        );
+        return (rows as any[]).map(toMerchantRule);
+      },
+      async update(id, patch) {
+        const body: Record<string, unknown> = {};
+        if (patch.matchValue !== undefined) body.match_value = patch.matchValue;
+        if (patch.setCategoryId !== undefined) body.set_category_id = patch.setCategoryId;
+        if (patch.setHiddenFromBudget !== undefined)
+          body.set_hidden_from_budget = patch.setHiddenFromBudget;
+        if (patch.renameTo !== undefined) body.rename_to = patch.renameTo;
+        if (patch.priority !== undefined) body.priority = patch.priority;
+        if (patch.isActive !== undefined) body.is_active = patch.isActive;
+        unwrap(await sb.from('merchant_rules').update(body).eq('id', id).select());
+      },
+      async deactivate(id) {
+        unwrap(await sb.from('merchant_rules').update({ is_active: false }).eq('id', id).select());
+      },
       async createFromCorrection({ merchant, setCategoryId, sourceTransactionId }) {
         const { data: auth } = await sb.auth.getUser();
         const uid = auth.user!.id;
@@ -287,7 +366,23 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
             categorySlug: cb.categories?.slug ?? 'other',
             limitCents: cb.limit_cents,
             spentCents: spent[cb.categories?.slug ?? 'other'] ?? 0,
+            isActive: cb.is_active,
           }),
+        );
+      },
+      async setCategoryLimit(monthId, categoryId, limitCents) {
+        const { data: auth } = await sb.auth.getUser();
+        unwrap(
+          await sb.from('category_budgets').upsert(
+            {
+              user_id: auth.user!.id,
+              budget_month_id: monthId,
+              category_id: categoryId,
+              limit_cents: limitCents,
+              is_active: true,
+            },
+            { onConflict: 'budget_month_id,category_id' },
+          ).select(),
         );
       },
     },
@@ -351,6 +446,12 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
       async list() {
         const rows = unwrap(await sb.from('saved_views').select('*').order('sort_order'));
         return (rows as any[]).map(toSavedView);
+      },
+      async update(id, patch) {
+        const body: Record<string, unknown> = {};
+        if (patch.name !== undefined) body.name = patch.name;
+        if (patch.filters !== undefined) body.filters_json = patch.filters;
+        unwrap(await sb.from('saved_views').update(body).eq('id', id).select());
       },
     },
   };

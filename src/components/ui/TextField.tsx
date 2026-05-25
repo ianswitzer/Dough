@@ -12,6 +12,9 @@ export function TextField({
   placeholder,
   keyboardType,
   autoCapitalize = 'sentences',
+  editable = true,
+  multiline = false,
+  numberOfLines,
 }: {
   label: string;
   value: string;
@@ -19,6 +22,9 @@ export function TextField({
   placeholder?: string;
   keyboardType?: KeyboardTypeOptions;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  editable?: boolean;
+  multiline?: boolean;
+  numberOfLines?: number;
 }) {
   const { colors, fonts, radius } = useTheme();
   return (
@@ -33,6 +39,9 @@ export function TextField({
         placeholderTextColor={colors.muted}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
+        editable={editable}
+        multiline={multiline}
+        numberOfLines={numberOfLines}
         style={{
           backgroundColor: colors.surface,
           borderWidth: 0.5,
@@ -43,6 +52,9 @@ export function TextField({
           fontFamily: fonts.ui,
           fontSize: 15,
           color: colors.ink,
+          minHeight: multiline ? 120 : undefined,
+          textAlignVertical: multiline ? 'top' : 'center',
+          opacity: editable ? 1 : 0.65,
         }}
       />
     </View>

@@ -41,7 +41,7 @@ export function SettingsScreen() {
       <AsyncBoundary loading={loading} error={error}>
         {/* Profile */}
         <View style={{ paddingHorizontal: 16, paddingBottom: 14 }}>
-          <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }} onPress={() => router.push('/profile')}>
             <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colors.accentSoft, alignItems: 'center', justifyContent: 'center' }}>
               <Txt variant="display" style={{ fontSize: 17 }}>
                 {initials}
@@ -81,6 +81,7 @@ export function SettingsScreen() {
                 label={a.name}
                 sub={a.type}
                 right={a.currentBalanceCents != null ? fmtMoneyShort(a.currentBalanceCents) : undefined}
+                onPress={() => router.push(`/account/${a.id}`)}
               />
             ))}
             <SettingsRow
@@ -89,8 +90,16 @@ export function SettingsScreen() {
               glyphBg={colors.mutedSoft}
               glyphFg={colors.ink2}
               label="Add account or import CSV"
-              sub="Plaid sync coming soon"
+              sub="Manual, CSV next, Plaid foundation started"
               onPress={() => router.push('/account/new')}
+            />
+            <SettingsRow
+              glyph="◎"
+              glyphBg={colors.sageSoft}
+              glyphFg={colors.sageInk}
+              label="Connect bank with Plaid"
+              sub="Requires backend link-token endpoints"
+              onPress={() => router.push('/plaid')}
             />
           </Card>
         </View>
@@ -99,9 +108,9 @@ export function SettingsScreen() {
         <View style={{ paddingHorizontal: 16, paddingBottom: 14 }}>
           <SectionLabel>Money</SectionLabel>
           <Card padded={false}>
-            <SettingsRow isFirst glyph="◐" label="Categories" sub="10 default" />
-            <SettingsRow glyph="◔" label="Tags" sub="Household, Personal, Reimbursable, Trip" />
-            <SettingsRow glyph="⊟" label="Rules" sub="Remembered corrections" />
+            <SettingsRow isFirst glyph="◐" label="Categories" sub="10 default" onPress={() => router.push('/settings/categories')} />
+            <SettingsRow glyph="◔" label="Tags" sub="Household, Personal, Reimbursable, Trip" onPress={() => router.push('/settings/tags')} />
+            <SettingsRow glyph="⊟" label="Rules" sub="Remembered corrections" onPress={() => router.push('/settings/rules')} />
             <SettingsRow glyph="↻" label="Recurring detection" rightControl={<Toggle on />} />
           </Card>
         </View>
