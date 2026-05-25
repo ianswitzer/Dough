@@ -14,7 +14,10 @@ Claude Design handoff bundle (warm cream paper, Instrument Serif display, calm
 rounded cards). See [`docs/DESIGN.md`](docs/DESIGN.md) for the design tokens and
 screen breakdown extracted from that bundle.
 
-- **Platform:** Expo / React Native (TypeScript), iOS-first, Android-compatible.
+- **Platform:** Expo SDK 56 / React Native 0.85 (React 19, TypeScript),
+  iOS-first, Android-compatible. `npx expo-doctor` is green; `tsc --noEmit` is
+  clean. Two versions are intentionally pinned via `expo.install.exclude` in
+  package.json — see the note there before "fixing" them.
 - **Backend:** Supabase (Postgres + Auth + Row Level Security).
 - **Routing:** `expo-router` (file-based, in [`app/`](app/)).
 

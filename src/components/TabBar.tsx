@@ -1,10 +1,20 @@
-import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '../theme';
 import { Icons, type IconName, Txt } from './ui';
+
+// Minimal shape of the navigator props we actually use — avoids depending on
+// @react-navigation/bottom-tabs typings, which expo-router doesn't re-export.
+type TabRoute = { key: string; name: string };
+type TabBarProps = {
+  state: { index: number; routes: TabRoute[] };
+  navigation: {
+    emit: (e: { type: 'tabPress'; target: string; canPreventDefault: true }) => { defaultPrevented: boolean };
+    navigate: (name: string) => void;
+  };
+};
 
 // Bottom nav matching the design: line icon + label, accent when active.
 const TABS: { name: string; label: string; icon: IconName }[] = [
@@ -15,7 +25,7 @@ const TABS: { name: string; label: string; icon: IconName }[] = [
   { name: 'settings', label: 'Settings', icon: 'gear' },
 ];
 
-export function TabBar({ state, navigation }: BottomTabBarProps) {
+export function TabBar({ state, navigation }: TabBarProps) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
