@@ -159,3 +159,20 @@ export type TransactionPatch = Partial<
     'categoryId' | 'descriptionClean' | 'isHiddenFromBudget' | 'reviewStatus' | 'notes'
   >
 >;
+
+// Input for creating a transaction manually (the Add Transaction form).
+export type NewTransaction = {
+  accountId: string;
+  categoryId: string | null;
+  date: string; // ISO yyyy-mm-dd
+  merchant: string;
+  amountCents: number; // expense positive, income negative
+  type: TxnType;
+};
+
+// Input for creating an account manually (the Add Account form).
+export type NewAccount = {
+  name: string;
+  type: AccountType;
+  currentBalanceCents: number | null;
+};

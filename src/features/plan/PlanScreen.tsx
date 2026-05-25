@@ -29,7 +29,7 @@ export function PlanScreen() {
   const y = now.getFullYear();
   const m = now.getMonth() + 1;
 
-  const { data, loading, error } = useAsync(async () => {
+  const { data, loading, error, refetch } = useAsync(async () => {
     const [month, budgets, recurring] = await Promise.all([
       repos.budget.getMonth(y, m),
       repos.budget.listCategoryBudgets(y, m),
@@ -41,7 +41,7 @@ export function PlanScreen() {
   const income = data?.recurring.find((r) => r.isIncome);
 
   return (
-    <Screen>
+    <Screen onRefresh={refetch}>
       <Header
         subtitle={`${now.toLocaleDateString('en-US', { month: 'long' })} plan · day ${now.getDate()}`}
         title="Plan"

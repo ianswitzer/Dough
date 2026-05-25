@@ -98,10 +98,8 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
             .insert({
               user_id: auth.user!.id,
               name: input.name,
-              institution_name: input.institutionName,
               type: input.type,
               current_balance_cents: input.currentBalanceCents,
-              available_balance_cents: input.availableBalanceCents,
             })
             .select()
             .single(),
@@ -145,6 +143,42 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
           await sb.from('transactions').select(TX_SELECT).eq('id', id).maybeSingle(),
         );
         return row ? toTransaction(row) : null;
+      },
+      async create(input) {
+        const { data: auth } = await sb.auth.getUser();
+        const row = unwrap(
+          await sb
+            .from('transactions')
+            .insert({
+              user_id: auth.user!.id,
+              account_id: input.accountId,
+              category_id: input.categoryId,
+              date: input.date,
+              description_raw: input.merchant,
+              description_clean: input.merchant,
+              amount_cents: input.amountCents,
+              type: input.type,
+              source: 'manual',
+              review_status: 'reviewed',
+            })
+            .select('id')
+            .single(),
+        );
+        return (row as any).id as string;
+      },
+      async setTags(transactionId, tagIds) {
+        const { data: auth } = await sb.auth.getUser();
+        const uid = auth.user!.id;
+        // Replace-all: clear then insert the chosen set.
+        unwrap(await sb.from('transaction_tags').delete().eq('transaction_id', transactionId).select());
+        if (tagIds.length) {
+          unwrap(
+            await sb
+              .from('transaction_tags')
+              .insert(tagIds.map((tag_id) => ({ transaction_id: transactionId, tag_id, user_id: uid })))
+              .select(),
+          );
+        }
       },
       async update(id, patch) {
         const body: Record<string, unknown> = {};

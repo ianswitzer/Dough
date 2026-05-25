@@ -1,5 +1,5 @@
-import { useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 
 import {
@@ -37,7 +37,7 @@ export function TransactionsScreen() {
   const { byId } = useCategories();
   const [filter, setFilter] = useState<Filter>('all');
 
-  const { data, loading, error } = useAsync(() => {
+  const { data, loading, error, refetch } = useAsync(() => {
     const query =
       filter === 'review'
         ? { reviewStatus: 'needs_review' as const }
@@ -50,6 +50,14 @@ export function TransactionsScreen() {
               : { hidden: false };
     return repos.transactions.list(query);
   }, [filter]);
+
+  // Refetch when the tab regains focus so a just-created transaction shows
+  // without a manual pull-to-refresh.
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
 
   // Group by date, preserving the date-desc order from the query.
   const groups = useMemo(() => {
@@ -66,7 +74,7 @@ export function TransactionsScreen() {
     .reduce((s, t) => s + t.amountCents, 0);
 
   return (
-    <Screen>
+    <Screen onRefresh={refetch}>
       <Header
         subtitle={new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
         title="Transactions"
@@ -75,8 +83,8 @@ export function TransactionsScreen() {
             <IconButton>
               <Icons.search color={colors.ink2} />
             </IconButton>
-            <IconButton>
-              <Icons.filter color={colors.ink2} />
+            <IconButton onPress={() => router.push('/transaction/new')}>
+              <Icons.plus color={colors.ink2} />
             </IconButton>
           </View>
         }

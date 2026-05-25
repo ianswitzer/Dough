@@ -9,6 +9,8 @@ import type {
   Category,
   CategoryBudget,
   Insight,
+  NewAccount,
+  NewTransaction,
   Profile,
   RecurringTransaction,
   ReviewItem,
@@ -25,7 +27,7 @@ export interface ProfileRepository {
 
 export interface AccountRepository {
   list(): Promise<Account[]>;
-  create(input: Omit<Account, 'id'>): Promise<Account>;
+  create(input: NewAccount): Promise<Account>;
 }
 
 export interface CategoryRepository {
@@ -48,7 +50,10 @@ export interface TransactionQuery {
 export interface TransactionRepository {
   list(query?: TransactionQuery): Promise<Transaction[]>;
   get(id: string): Promise<Transaction | null>;
+  create(input: NewTransaction): Promise<string>;
   update(id: string, patch: TransactionPatch): Promise<void>;
+  /** Replace the transaction's tags with exactly `tagIds`. */
+  setTags(transactionId: string, tagIds: string[]): Promise<void>;
   /** Sum of expense (positive) amounts in the given month, excluding hidden. */
   monthSpendByCategory(year: number, month: number): Promise<Record<string, number>>;
 }

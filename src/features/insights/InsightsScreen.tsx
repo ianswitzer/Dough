@@ -24,7 +24,7 @@ export function InsightsScreen() {
   const { bySlug } = useCategories();
   const now = new Date();
 
-  const { data, loading, error } = useAsync(async () => {
+  const { data, loading, error, refetch } = useAsync(async () => {
     const [insights, budgets, views] = await Promise.all([
       repos.insights.list(),
       repos.budget.listCategoryBudgets(now.getFullYear(), now.getMonth() + 1),
@@ -34,7 +34,7 @@ export function InsightsScreen() {
   }, []);
 
   return (
-    <Screen>
+    <Screen onRefresh={refetch}>
       <Header
         subtitle="What changed"
         title="Insights"

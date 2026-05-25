@@ -32,7 +32,7 @@ export function TodayScreen() {
   const { bySlug } = useCategories();
 
   const now = new Date();
-  const { data, loading, error } = useAsync(async () => {
+  const { data, loading, error, refetch } = useAsync(async () => {
     const [profile, accounts, recurring, budgetMonth, review, insights] = await Promise.all([
       repos.profile.getCurrent(),
       repos.accounts.list(),
@@ -47,7 +47,7 @@ export function TodayScreen() {
   const firstName = data?.profile?.displayName?.split(' ')[0] ?? 'there';
 
   return (
-    <Screen>
+    <Screen onRefresh={refetch}>
       <Header
         subtitle={now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
         title={`Morning, ${firstName}`}

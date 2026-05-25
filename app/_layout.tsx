@@ -36,8 +36,10 @@ function Guard() {
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(onboarding)" />
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="transaction/new" options={{ presentation: 'modal' }} />
       <Stack.Screen name="transaction/[id]" options={{ presentation: 'modal' }} />
       <Stack.Screen name="category/[slug]" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="account/new" options={{ presentation: 'modal' }} />
       <Stack.Screen name="review" options={{ presentation: 'modal' }} />
       <Stack.Screen name="recurring" options={{ presentation: 'modal' }} />
     </Stack>

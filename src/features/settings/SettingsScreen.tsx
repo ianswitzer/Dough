@@ -1,4 +1,5 @@
-import React from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback } from 'react';
 import { View } from 'react-native';
 
 import { useAuth } from '../../auth/AuthProvider';
@@ -12,13 +13,21 @@ import { SettingsRow } from './SettingsRow';
 
 export function SettingsScreen() {
   const { colors } = useTheme();
+  const router = useRouter();
   const repos = useRepositories();
   const { signOut } = useAuth();
 
-  const { data, loading, error } = useAsync(async () => {
+  const { data, loading, error, refetch } = useAsync(async () => {
     const [profile, accounts] = await Promise.all([repos.profile.getCurrent(), repos.accounts.list()]);
     return { profile, accounts };
   }, []);
+
+  // Refresh on focus so a newly-added account appears on return.
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
 
   const initials = (data?.profile?.displayName ?? data?.profile?.email ?? 'You')
     .split(/[\s@]/)[0]
@@ -26,7 +35,7 @@ export function SettingsScreen() {
     .toUpperCase();
 
   return (
-    <Screen>
+    <Screen onRefresh={refetch}>
       <Header title="Settings" />
 
       <AsyncBoundary loading={loading} error={error}>
@@ -81,6 +90,7 @@ export function SettingsScreen() {
               glyphFg={colors.ink2}
               label="Add account or import CSV"
               sub="Plaid sync coming soon"
+              onPress={() => router.push('/account/new')}
             />
           </Card>
         </View>

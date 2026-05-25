@@ -32,11 +32,16 @@ Living checklist. Update after every work session (per CLAUDE.md).
       RLS + seed trigger fire, tap through every screen on a simulator).
 - [ ] Add `react-native-web` deps if web target is desired (typecheck is clean
       but web export needs them).
-- [ ] Pull-to-refresh + optimistic cache so edits reflect without a manual
-      reload across screens.
-- [ ] Account create / edit UI (repo method exists; no screen yet).
+- [x] Pull-to-refresh on all five tabs; Transactions/Settings also refetch on
+      focus so created/edited items appear on return.
+- [x] Account create UI (Settings → Add account → form). Edit/deactivate still
+      TODO.
+- [x] Add Transaction UI (Transactions → + → form: merchant, amount, type,
+      account, category).
 - [x] Notes editing in Transaction detail (inline TextInput, persists on save).
-- [ ] Tags editing in Transaction detail (Notes done; tags row still read-only).
+- [x] Tags editing in Transaction detail (tag picker, persists via setTags).
+- [ ] Optimistic cache so edits reflect instantly without a refetch round-trip.
+- [ ] Account edit / deactivate UI.
 
 ## Backlog (post-MVP / stretch, per spec §5)
 

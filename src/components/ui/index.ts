@@ -10,6 +10,8 @@ export { PrimaryButton } from './PrimaryButton';
 export { ProgressBar } from './ProgressBar';
 export { Screen } from './Screen';
 export { SectionLabel } from './SectionLabel';
+export { Segmented } from './Segmented';
+export { TextField } from './TextField';
 export { Toggle } from './Toggle';
 export { tint, type TintKey } from './tints';
 export { Txt } from './Txt';

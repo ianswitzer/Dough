@@ -59,16 +59,24 @@ function DetailBody({
 }) {
   const { colors, radius } = useTheme();
   const repos = useRepositories();
+  const { data: allTags } = useAsync(() => repos.tags.list(), []);
   const [chosen, setChosen] = useState<string | null>(tx.categoryId);
   const [showPicker, setShowPicker] = useState(false);
   const [remember, setRemember] = useState(true);
   const [hidden, setHidden] = useState(tx.isHiddenFromBudget);
   const [notes, setNotes] = useState(tx.notes ?? '');
+  const [showTags, setShowTags] = useState(false);
+  const [selTags, setSelTags] = useState<string[]>(tx.tagNames); // tag names
   const [saving, setSaving] = useState(false);
   const chosenCat = chosen ? categories.find((c) => c.id === chosen) : undefined;
   const categoryChanged = chosen !== tx.categoryId;
-  const changed = categoryChanged || hidden !== tx.isHiddenFromBudget || notes.trim() !== (tx.notes ?? '');
+  const tagsChanged = [...selTags].sort().join('|') !== [...tx.tagNames].sort().join('|');
+  const changed =
+    categoryChanged || hidden !== tx.isHiddenFromBudget || notes.trim() !== (tx.notes ?? '') || tagsChanged;
   const isIncome = tx.amountCents < 0;
+
+  const toggleTag = (name: string) =>
+    setSelTags((cur) => (cur.includes(name) ? cur.filter((n) => n !== name) : [...cur, name]));
 
   const save = async () => {
     setSaving(true);
@@ -79,6 +87,10 @@ function DetailBody({
         notes: notes.trim() || null,
         reviewStatus: 'reviewed',
       });
+      if (tagsChanged) {
+        const ids = (allTags ?? []).filter((t) => selTags.includes(t.name)).map((t) => t.id);
+        await repos.transactions.setTags(tx.id, ids).catch(() => {});
+      }
       // Corrections create learning (spec §12.2/§14): if the user changed the
       // category and opted to remember it, persist a MerchantRule and apply it
       // to other un-reviewed charges from the same merchant.
@@ -165,7 +177,41 @@ function DetailBody({
               })}
             </View>
           ) : null}
-          <DetailRow label="Tags" value={tx.tagNames.join(', ') || 'Add tag'} />
+          <Pressable
+            onPress={() => setShowTags((s) => !s)}
+            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 14, borderTopWidth: 0.5, borderTopColor: colors.hairline }}
+          >
+            <Txt color={colors.muted} style={{ fontSize: 13 }}>Tags</Txt>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Txt style={{ fontSize: 14 }}>{selTags.join(', ') || 'Add tag'}</Txt>
+              <Icons.chev color={colors.muted} opacity={0.4} />
+            </View>
+          </Pressable>
+          {showTags ? (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, padding: 12, backgroundColor: colors.paper2, borderTopWidth: 0.5, borderTopColor: colors.hairline }}>
+              {(allTags ?? []).map((t) => {
+                const on = selTags.includes(t.name);
+                return (
+                  <Pressable
+                    key={t.id}
+                    onPress={() => toggleTag(t.name)}
+                    style={{
+                      paddingVertical: 6,
+                      paddingHorizontal: 10,
+                      borderRadius: 999,
+                      backgroundColor: on ? colors.ink : colors.surface,
+                      borderWidth: 0.5,
+                      borderColor: on ? colors.ink : colors.hairline2,
+                    }}
+                  >
+                    <Txt color={on ? colors.onInk : colors.ink2} style={{ fontSize: 12 }}>
+                      {t.name}
+                    </Txt>
+                  </Pressable>
+                );
+              })}
+            </View>
+          ) : null}
           <NotesRow value={notes} onChange={setNotes} />
         </Card>
       </View>
@@ -225,23 +271,3 @@ function NotesRow({ value, onChange }: { value: string; onChange: (v: string) =>
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
-  const { colors } = useTheme();
-  return (
-    <View
-      style={{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 14,
-        borderTopWidth: 0.5,
-        borderTopColor: colors.hairline,
-      }}
-    >
-      <Txt color={colors.muted} style={{ fontSize: 13 }}>{label}</Txt>
-      <Txt style={{ fontSize: 14, maxWidth: '60%' }} numberOfLines={1}>
-        {value}
-      </Txt>
-    </View>
-  );
-}
