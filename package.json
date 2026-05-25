@@ -33,12 +33,12 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.0",
-    "typescript": "~5.9.2"
+    "typescript": "~6.0.3"
   },
   "expo": {
     "install": {
-      "//": "typescript: SDK prefers TS 6, which drags in an incompatible react-dom; 5.9 typechecks clean. react: pinned to 19.2.6 (one patch above the SDK default) so react-dom's ^19.2.6 peer resolves.",
-      "exclude": ["typescript", "react"]
+      "//": "react pinned to 19.2.6 (one patch above the SDK default) so the transitive react-dom's ^19.2.6 peer resolves.",
+      "exclude": ["react"]
     }
   }
 }
