@@ -8,7 +8,7 @@ few emotionally important questions instead of drowning you in dashboards:
 Built from the [product spec](docs/budget_app_mvp_spec.docx) and a Claude Design
 handoff (see [docs/DESIGN.md](docs/DESIGN.md)).
 
-- **App:** Expo / React Native + TypeScript (iOS-first, Android-compatible)
+- **App:** Expo SDK 54 / React Native + TypeScript (iOS-first, runs in Expo Go)
 - **Backend:** Supabase (Postgres, Auth, Row Level Security)
 - **Routing:** `expo-router`
 

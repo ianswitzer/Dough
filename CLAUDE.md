@@ -14,11 +14,14 @@ Claude Design handoff bundle (warm cream paper, Instrument Serif display, calm
 rounded cards). See [`docs/DESIGN.md`](docs/DESIGN.md) for the design tokens and
 screen breakdown extracted from that bundle.
 
-- **Platform:** Expo SDK 56 / React Native 0.85 (React 19, TypeScript 6),
-  iOS-first, Android-compatible. `npx expo-doctor` is green; `tsc --noEmit` is
-  clean. `react` is pinned one patch above the SDK default (19.2.6) via
-  `expo.install.exclude` so the transitive react-dom peer resolves — see the
-  note in package.json before "fixing" it.
+- **Platform:** Expo SDK 54 / React Native 0.81 (React 19, TypeScript 5.9),
+  iOS-first, Android-compatible. `npx expo-doctor` is 18/18; `tsc --noEmit` is
+  clean. **Why SDK 54, not the npm-latest 56:** Expo Go (the prebuilt client
+  used for `npm run ios`) only runs the SDK(s) Expo has shipped to the App
+  Store. The current store Expo Go tops out at 54, so the project targets 54 to
+  stay runnable in Expo Go without a custom dev build. Bump only alongside a
+  matching Expo Go release (or move to a dev build). Always realign deps with
+  `npx expo install --fix` after changing the `expo` version.
 - **Backend:** Supabase (Postgres + Auth + Row Level Security).
 - **Routing:** `expo-router` (file-based, in [`app/`](app/)).
 
