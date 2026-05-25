@@ -80,11 +80,13 @@ function StepWelcome() {
   );
 }
 
-const IMPORT_OPTIONS = [
+type ImportOption = { id: string; label: string; sub: string; tag?: string; disabled?: boolean };
+
+const IMPORT_OPTIONS: ImportOption[] = [
   { id: 'csv', label: 'Import a CSV', sub: 'Drag a statement from any bank', tag: 'Recommended' },
   { id: 'bank', label: 'Connect my bank', sub: 'Plaid sync — coming soon', tag: 'Soon', disabled: true },
   { id: 'manual', label: 'Track manually', sub: 'Add transactions as I go' },
-] as const;
+];
 
 function StepImport() {
   const { colors, radius } = useTheme();

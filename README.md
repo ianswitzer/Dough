@@ -14,7 +14,11 @@ handoff (see [docs/DESIGN.md](docs/DESIGN.md)).
 
 ## Status
 
-Early MVP scaffold. See [TODO.md](TODO.md) for what's done and what's next.
+MVP feature-complete on the client: auth + onboarding, all five tabs (Today,
+Transactions, Plan, Insights, Settings) and the detail overlays are built and
+wired to Supabase through the repository layer; dark mode ships. `tsc --noEmit`
+is clean. Next step is verifying against a live Supabase project — see
+[TODO.md](TODO.md).
 
 ## Getting started
 
