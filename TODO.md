@@ -28,8 +28,8 @@ Living checklist. Update after every work session (per CLAUDE.md).
 
 ## Next (to make it fully usable end-to-end)
 
-- [ ] Verify against a live Supabase project (run migrations, sign up, confirm
-      RLS + seed trigger fire, tap through every screen on a simulator).
+- [x] Verify against a live Supabase project (migrations run, sign up, RLS +
+      seed trigger fire, tapped through screens on a simulator/device).
 - [ ] Add `react-native-web` deps if web target is desired (typecheck is clean
       but web export needs them).
 - [x] Pull-to-refresh on all five tabs; Transactions/Settings also refetch on
@@ -53,9 +53,14 @@ Living checklist. Update after every work session (per CLAUDE.md).
 - [x] Saved views edit UI (rename + filter JSON editing).
 - [x] Plaid connection starter screen documenting the required Link-token /
       public-token backend boundary.
-- [x] Plaid Edge Function scaffolds for link-token creation and public-token
-      exchange (secrets stay server-side; persistence/sync still TODO).
-- [x] Data export + account deletion UI and Edge Function scaffolds.
+- [x] Plaid full Link flow: `plaid_items` table (service-role only),
+      `plaid-exchange-public-token` now persists the Item + maps accounts + runs
+      the first sync, `plaid-sync-transactions` for incremental cursor sync,
+      `PlaidRepository` interface + impl, and a working PlaidConnectScreen.
+      Added `react-native-plaid-link-sdk` + prebuilt iOS (needs a dev build, not
+      Expo Go). **Still needs:** run `0004_plaid.sql`, set `PLAID_*` secrets, and
+      deploy the three functions (README §6), then verify end-to-end on device.
+- [x] Data export + account deletion UI and Edge Functions (deployed).
 - [ ] Optimistic cache so edits reflect instantly without a refetch round-trip.
 
 ## Backlog (post-MVP / stretch, per spec §5)
@@ -68,17 +73,20 @@ Living checklist. Update after every work session (per CLAUDE.md).
 - [~] Custom saved-view builder (basic saved-view rename/filter JSON editing is
       wired; polished builder controls still TODO).
 - [ ] Notifications: weekly pulse, bill increase, unusual charge.
-- [ ] Data export + account deletion (§16 acceptance criteria).
-- [ ] Stretch: bank sync (Plaid), household sharing, settle-up, before-you-buy,
-      budget autopilot, receipts.
+- [x] Data export + account deletion (§16 acceptance criteria) — UI + functions deployed.
+- [~] Stretch: bank sync (Plaid) — built (see above), pending deploy + verify.
+      Household sharing, settle-up, before-you-buy, budget autopilot, receipts
+      still backlog.
 
 ## ⚑ Handoff notes (read first — written 2026-05-25)
 
-Status snapshot for the next agent. The client is feature-built and `tsc`/
-`expo-doctor` are clean, but **the app has not been verified end-to-end against
-a live Supabase project on a device** — the human tester was driving that and
-hit a usage limit. Assume runtime bugs are still possible; the safest first
-move is to run it (see README §4–5) and tap through before building more.
+Status snapshot for the next agent. The client is feature-built, `tsc`/
+`expo-doctor` are clean, and the app has been run against a live Supabase
+project on a simulator/device. **Plaid bank sync is the main unverified piece**:
+the code + iOS dev build are in place, but the three `plaid-*` Edge Functions
+still need to be deployed with `PLAID_*` secrets and exercised end-to-end (see
+README §6). Everything Plaid needs a custom dev build (`npx expo run:ios`), not
+Expo Go.
 
 ### Looks done but is NOT wired (don't be fooled by the UI)
 - **Insight/review/recurring generation is now wired as a client refresh job,**
@@ -118,12 +126,10 @@ move is to run it (see README §4–5) and tap through before building more.
 - Money is integer cents everywhere; expenses positive, income negative.
 
 ### Suggested next order of work
-1. Run + verify against live Supabase; fix any runtime issues found.
-2. Verify data export + account deletion against deployed Edge Functions.
-3. CSV import (`ImportJob`) — unlocks "create account + import CSV".
-4. Add Plaid SDK wiring, secure item/access-token persistence, account mapping,
-   and transaction sync.
-5. Move intelligence generation to a scheduled/server-side job if client
+1. Deploy + verify the three `plaid-*` Edge Functions end-to-end (link a sandbox
+   bank, confirm accounts + transactions land); see README §6.
+2. CSV import (`ImportJob`) — unlocks "create account + import CSV".
+3. Move intelligence generation to a scheduled/server-side job if client
    refresh proves too slow or too easy to race in real use.
 
 ## Acceptance criteria to verify before "MVP done" (spec §19)
@@ -140,5 +146,5 @@ move is to run it (see README §4–5) and tap through before building more.
 - [x] Review items for uncategorized / recurring / unusual / subscription up.
 - [x] ≥3 insight types (monthly summary, spending drift, unusual transaction,
       recurring change; rows depend on available transaction history).
-- [~] Data export + account deletion (UI + functions scaffolded; needs deployed
-      function verification with `SUPABASE_SERVICE_ROLE_KEY`).
+- [x] Data export + account deletion (UI + `data-export` / `account-delete` Edge
+      Functions deployed 2026-05-25; tap-through verification still nice to have).

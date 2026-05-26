@@ -8,7 +8,8 @@ few emotionally important questions instead of drowning you in dashboards:
 Built from the [product spec](docs/budget_app_mvp_spec.docx) and a Claude Design
 handoff (see [docs/DESIGN.md](docs/DESIGN.md)).
 
-- **App:** Expo SDK 54 / React Native + TypeScript (iOS-first, runs in Expo Go)
+- **App:** Expo SDK 54 / React Native + TypeScript (iOS-first; Expo Go for most
+  screens, custom dev build required for Plaid Link)
 - **Backend:** Supabase (Postgres, Auth, Row Level Security)
 - **Routing:** `expo-router`
 
@@ -21,9 +22,9 @@ also refreshes generated insights, review items, and recurring candidates from
 transaction history when the relevant screens load. Profile, financial account,
 category detail owns category name/budget edits, Plan `+` creates a category,
 and tag/rule/saved-view/data export/account deletion screens are in place.
-`tsc --noEmit` and `expo-doctor` are clean. Next step is
-verifying against a live Supabase project on a simulator/device — see
-[TODO.md](TODO.md).
+`tsc --noEmit` and `expo-doctor` are clean, and the app has been run against a
+live Supabase project on a simulator/device. Plaid bank sync is built but still
+needs its functions deployed + an end-to-end pass — see [TODO.md](TODO.md).
 
 ## Getting started
 
@@ -61,8 +62,13 @@ order.
 ### 4. Run
 
 ```bash
-npm run ios       # or: npm run android / npm run web
+npx expo run:ios  # builds the custom dev client (required for Plaid Link)
 ```
+
+> **Dev build vs Expo Go.** Adding Plaid Link pulled in a native module, so the
+> app now needs a custom dev build — `npx expo run:ios` builds and installs it.
+> `npm run ios` (Expo Go) still works for everything *except* the Plaid Link
+> screen, which needs the native module.
 
 > **Auth for local testing:** Supabase requires email confirmation on sign-up by
 > default, so a new account has no session until the email link is clicked. For
@@ -78,34 +84,62 @@ run [`supabase/seed_sample_data.sql`](supabase/seed_sample_data.sql) in the
 Supabase SQL editor (set `v_email` to your sign-up email at the top). It's
 idempotent — safe to re-run.
 
-### 6. (Optional) Plaid sync scaffold
+### 6. Plaid bank sync (real data)
 
-The app has a Plaid starter screen and Supabase Edge Function scaffolds for
-`plaid-create-link-token` and `plaid-exchange-public-token`. Before enabling
-the client button, deploy those functions and set secrets in Supabase, not in
-Expo `.env`:
+The full Link flow is wired: tap **Settings → Connect bank with Plaid**, log in
+through Plaid's secure flow, and the linked accounts + transactions sync into
+Dough. Three Edge Functions broker it server-side so the Plaid secret and the
+long-lived access token never reach the app:
+
+- `plaid-create-link-token` — mints the Link token the client opens.
+- `plaid-exchange-public-token` — exchanges the public token, stores the Item in
+  `plaid_items` (service-role only), maps accounts, and runs the first sync.
+- `plaid-sync-transactions` — incremental cursor-based `/transactions/sync`.
+
+> **Requires a custom dev build.** The native Plaid Link module does not run in
+> Expo Go. The repo is prebuilt for iOS (`expo prebuild`); run with
+> `npx expo run:ios` (not `npm run ios`). `ios/` and `android/` are gitignored —
+> regenerate with `npx expo prebuild` if needed.
+
+**One-time backend setup** (your Plaid secret stays in your own terminal — never
+paste it into the app, `.env`, or a chat):
 
 ```bash
+# 1. Apply the Plaid migration. Either run supabase/migrations/0004_plaid.sql in
+#    the SQL editor (consistent with how 0001–0003 were applied), or `db push`.
+
+# 2. Set Plaid secrets on the project (server-side only).
+supabase login                         # opens browser for a personal access token
+supabase link --project-ref <your-ref> # ref is in the project's dashboard URL
 supabase secrets set PLAID_CLIENT_ID=... PLAID_SECRET=... PLAID_ENV=sandbox
-# optional for Android OAuth institutions:
-supabase secrets set PLAID_ANDROID_PACKAGE_NAME=com.yourcompany.dough
+# optional, for Android OAuth institutions:
+supabase secrets set PLAID_ANDROID_PACKAGE_NAME=co.dough.app
+
+# 3. Deploy the functions.
+supabase functions deploy plaid-create-link-token
+supabase functions deploy plaid-exchange-public-token
+supabase functions deploy plaid-sync-transactions
 ```
 
-The current scaffold creates a Link token and exchanges a public token; durable
-Plaid item storage, encrypted access-token storage, account mapping, and
-transaction sync are still TODO.
+`PLAID_ENV` is `sandbox` for test data, `production` for real banks. `SUPABASE_URL`,
+`SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are injected into deployed
+functions automatically by Supabase — no need to set them.
 
 ### 7. (Optional) Data export / account deletion functions
 
-The Data & account screen calls `data-export` and `account-delete` Supabase Edge
-Functions. `account-delete` requires a server-side service role key so it can
-delete the authenticated Supabase user:
+The Data & account screen calls the `data-export` and `account-delete` Supabase
+Edge Functions (both **deployed**). They're independent of Plaid; redeploy with:
 
 ```bash
-supabase secrets set SUPABASE_SERVICE_ROLE_KEY=...
+supabase functions deploy data-export
+supabase functions deploy account-delete
 ```
 
-Never expose that key through `EXPO_PUBLIC_*` variables or the app bundle.
+`account-delete` uses the service-role key to delete the authenticated Supabase
+user. You don't set it: Supabase **injects `SUPABASE_SERVICE_ROLE_KEY` into
+deployed functions automatically** (reserved `SUPABASE_*` secrets can't be set
+manually). Never expose that key through `EXPO_PUBLIC_*` variables or the app
+bundle.
 
 ## Project layout
 
