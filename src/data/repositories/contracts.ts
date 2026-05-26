@@ -140,6 +140,25 @@ export interface DataPrivacyRepository {
   deleteAccount(): Promise<void>;
 }
 
+// Plaid bank-sync. The repo only brokers tokens with the server-side Edge
+// Functions; the Plaid access_token and secrets never reach the client. Synced
+// accounts/transactions are read back through the normal repositories.
+export type PlaidSyncResult = { added: number; modified: number; removed: number };
+
+export interface PlaidLinkSuccess {
+  publicToken: string;
+  institution?: { id?: string; name?: string };
+}
+
+export interface PlaidRepository {
+  /** Create a Link token to open Plaid Link in the client. */
+  createLinkToken(): Promise<string>;
+  /** Exchange the public token from Link; persists the item + first sync server-side. */
+  exchangePublicToken(success: PlaidLinkSuccess): Promise<{ accounts: number; synced: PlaidSyncResult }>;
+  /** Incrementally sync all linked items for the current user. */
+  syncTransactions(): Promise<{ items: number; synced: PlaidSyncResult }>;
+}
+
 // The bundle injected through React context.
 export interface Repositories {
   profile: ProfileRepository;
@@ -155,4 +174,5 @@ export interface Repositories {
   intelligence: IntelligenceRepository;
   savedViews: SavedViewRepository;
   dataPrivacy: DataPrivacyRepository;
+  plaid: PlaidRepository;
 }

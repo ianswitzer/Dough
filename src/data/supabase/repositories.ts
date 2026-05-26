@@ -534,5 +534,25 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
         if (error) throw new Error(error.message);
       },
     },
+
+    plaid: {
+      async createLinkToken() {
+        const { data, error } = await sb.functions.invoke('plaid-create-link-token', { body: {} });
+        if (error) throw new Error(error.message);
+        return (data as { link_token: string }).link_token;
+      },
+      async exchangePublicToken(success) {
+        const { data, error } = await sb.functions.invoke('plaid-exchange-public-token', {
+          body: { public_token: success.publicToken, institution: success.institution },
+        });
+        if (error) throw new Error(error.message);
+        return data as { accounts: number; synced: { added: number; modified: number; removed: number } };
+      },
+      async syncTransactions() {
+        const { data, error } = await sb.functions.invoke('plaid-sync-transactions', { body: {} });
+        if (error) throw new Error(error.message);
+        return data as { items: number; synced: { added: number; modified: number; removed: number } };
+      },
+    },
   };
 }
