@@ -60,6 +60,11 @@ Living checklist. Update after every work session (per CLAUDE.md).
       Added `react-native-plaid-link-sdk` + prebuilt iOS (needs a dev build, not
       Expo Go). **Still needs:** run `0004_plaid.sql`, set `PLAID_*` secrets, and
       deploy the three functions (README §6), then verify end-to-end on device.
+- [ ] Plaid OAuth support (REQUIRED for production — most major banks use OAuth):
+      register a `redirect_uri` in the Plaid dashboard, host an
+      `apple-app-site-association` file on that domain, add the associated-domains
+      entitlement / Universal Link to the iOS app, and set `PLAID_REDIRECT_URI`
+      (function support already wired). Sandbox/non-OAuth banks work without it.
 - [x] Data export + account deletion UI and Edge Functions (deployed).
 - [ ] Optimistic cache so edits reflect instantly without a refetch round-trip.
 
