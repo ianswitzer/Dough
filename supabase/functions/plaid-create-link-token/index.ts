@@ -11,6 +11,11 @@ Deno.serve(async (req) => {
     const user = await requireUser(req);
     const client = plaidClient();
     const androidPackageName = Deno.env.get('PLAID_ANDROID_PACKAGE_NAME') || undefined;
+    // Required only for OAuth institutions on iOS. Must be a Universal Link that
+    // is also registered in the Plaid dashboard (Team Settings → API → Allowed
+    // redirect URIs). Leave unset to use non-OAuth institutions (e.g. sandbox
+    // testing) — passing an empty/unregistered value makes Plaid reject Link.
+    const redirectUri = Deno.env.get('PLAID_REDIRECT_URI') || undefined;
     const response = await client.linkTokenCreate({
       user: { client_user_id: user.id },
       client_name: 'Dough',
@@ -18,6 +23,7 @@ Deno.serve(async (req) => {
       country_codes: [CountryCode.Us],
       language: 'en',
       android_package_name: androidPackageName,
+      redirect_uri: redirectUri,
     });
 
     return json({ link_token: response.data.link_token, expiration: response.data.expiration });

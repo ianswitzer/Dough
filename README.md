@@ -125,6 +125,14 @@ supabase functions deploy plaid-sync-transactions
 `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are injected into deployed
 functions automatically by Supabase — no need to set them.
 
+**Sandbox testing:** pick a **non-OAuth** institution in Link (e.g. "First
+Platypus Bank") and log in with `user_good` / `pass_good`. OAuth institutions
+require a `redirect_uri` that is registered in the Plaid dashboard **and** backed
+by an iOS Universal Link (associated-domains entitlement + a hosted
+`apple-app-site-association` file). When you have that, set
+`supabase secrets set PLAID_REDIRECT_URI=https://yourdomain/plaid-oauth`; until
+then, leave it unset and use non-OAuth banks.
+
 ### 7. (Optional) Data export / account deletion functions
 
 The Data & account screen calls the `data-export` and `account-delete` Supabase
