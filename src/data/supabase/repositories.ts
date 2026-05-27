@@ -332,6 +332,7 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
       },
       async update(id, patch) {
         const body: Record<string, unknown> = {};
+        if (patch.accountId !== undefined) body.account_id = patch.accountId;
         if (patch.categoryId !== undefined) body.category_id = patch.categoryId;
         if (patch.descriptionClean !== undefined) body.description_clean = patch.descriptionClean;
         if (patch.isHiddenFromBudget !== undefined)

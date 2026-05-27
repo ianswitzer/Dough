@@ -60,11 +60,13 @@ constraints and gotchas live in [CLAUDE.md](CLAUDE.md), not here.
 - [x] Insights filter: header filter toggle reveals friendly buckets (Spending,
       Merchants, Unusual, Recurring) that filter the plain-English list by
       insight kind; only buckets with matching insights are offered.
+- [x] Transaction detail: editable account (picker writes `accountId` via
+      `TransactionPatch`, saved with the other corrections).
 
 ## Remaining
 
-- [ ] Transaction detail: editable account, "track as recurring", and split
-      affordances (account is currently fixed at create time).
+- [ ] Transaction detail: "track as recurring" and split affordances (account
+      is now editable; these two remain).
 - [ ] Wire the static Settings controls to persist: recurring + notification
       toggles and the Buffer / Period / Confidence settings.
 - [ ] Optimistic cache so edits reflect instantly without a refetch round-trip.

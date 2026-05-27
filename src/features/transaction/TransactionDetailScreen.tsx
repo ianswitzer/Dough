@@ -60,8 +60,11 @@ function DetailBody({
   const { colors, radius } = useTheme();
   const repos = useRepositories();
   const { data: allTags } = useAsync(() => repos.tags.list(), []);
+  const { data: accounts } = useAsync(() => repos.accounts.list(), []);
   const [chosen, setChosen] = useState<string | null>(tx.categoryId);
   const [showPicker, setShowPicker] = useState(false);
+  const [accountId, setAccountId] = useState<string>(tx.accountId);
+  const [showAccounts, setShowAccounts] = useState(false);
   const [remember, setRemember] = useState(true);
   const [hidden, setHidden] = useState(tx.isHiddenFromBudget);
   const [notes, setNotes] = useState(tx.notes ?? '');
@@ -71,12 +74,15 @@ function DetailBody({
   const [saving, setSaving] = useState(false);
   const chosenCat = chosen ? categories.find((c) => c.id === chosen) : undefined;
   const categoryChanged = chosen !== tx.categoryId;
+  const accountChanged = accountId !== tx.accountId;
   const tagsChanged = [...selTags].sort().join('|') !== [...tx.tagNames].sort().join('|');
   // A blank name falls back to the original; only a non-empty distinct value is a rename.
   const trimmedMerchant = merchant.trim();
   const merchantChanged = trimmedMerchant.length > 0 && trimmedMerchant !== tx.merchant;
+  const chosenAccount = (accounts ?? []).find((a) => a.id === accountId);
   const changed =
     categoryChanged ||
+    accountChanged ||
     merchantChanged ||
     hidden !== tx.isHiddenFromBudget ||
     notes.trim() !== (tx.notes ?? '') ||
@@ -94,6 +100,7 @@ function DetailBody({
         isHiddenFromBudget: hidden,
         notes: notes.trim() || null,
         reviewStatus: 'reviewed',
+        ...(accountChanged ? { accountId } : {}),
         ...(merchantChanged ? { descriptionClean: trimmedMerchant } : {}),
       });
       if (tagsChanged) {
@@ -169,6 +176,44 @@ function DetailBody({
                     onPress={() => {
                       setChosen(opt.id);
                       setShowPicker(false);
+                    }}
+                    style={{
+                      paddingVertical: 6,
+                      paddingHorizontal: 10,
+                      borderRadius: 999,
+                      backgroundColor: on ? colors.ink : colors.surface,
+                      borderWidth: 0.5,
+                      borderColor: on ? colors.ink : colors.hairline2,
+                    }}
+                  >
+                    <Txt color={on ? colors.onInk : colors.ink2} style={{ fontSize: 12 }}>
+                      {opt.name}
+                    </Txt>
+                  </Pressable>
+                );
+              })}
+            </View>
+          ) : null}
+          <Pressable
+            onPress={() => setShowAccounts((s) => !s)}
+            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 14, borderTopWidth: 0.5, borderTopColor: colors.hairline }}
+          >
+            <Txt color={colors.muted} style={{ fontSize: 13 }}>Account</Txt>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Txt style={{ fontSize: 14 }}>{chosenAccount?.name ?? '—'}</Txt>
+              <Icons.chev color={colors.muted} opacity={0.4} />
+            </View>
+          </Pressable>
+          {showAccounts ? (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, padding: 12, backgroundColor: colors.paper2, borderTopWidth: 0.5, borderTopColor: colors.hairline }}>
+              {(accounts ?? []).map((opt) => {
+                const on = accountId === opt.id;
+                return (
+                  <Pressable
+                    key={opt.id}
+                    onPress={() => {
+                      setAccountId(opt.id);
+                      setShowAccounts(false);
                     }}
                     style={{
                       paddingVertical: 6,

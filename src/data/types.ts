@@ -197,7 +197,7 @@ export type SavedViewPatch = Partial<Pick<SavedView, 'name' | 'filters'>>;
 export type TransactionPatch = Partial<
   Pick<
     Transaction,
-    'categoryId' | 'descriptionClean' | 'isHiddenFromBudget' | 'reviewStatus' | 'notes'
+    'accountId' | 'categoryId' | 'descriptionClean' | 'isHiddenFromBudget' | 'reviewStatus' | 'notes'
   >
 >;
 
