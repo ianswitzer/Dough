@@ -56,7 +56,7 @@ begin
     (v_uid, v_chase, (select id from categories where user_id=v_uid and slug='groceries'),   d,        'TRADER JOES #455',        'Trader Joe''s',      4287,   'expense', 'reviewed', false, null),
     (v_uid, v_amex,  (select id from categories where user_id=v_uid and slug='transport'),   d - 1,    'LYFT *RIDE',              'Lyft',               1820,   'expense', 'reviewed', false, null),
     (v_uid, v_amex,  (select id from categories where user_id=v_uid and slug='shopping'),    d - 1,    'AMZN MKTP US*Z14H9',      'Amazon',             6499,   'expense', 'needs_review', false, 'unusual'),
-    (v_uid, v_chase, (select id from categories where user_id=v_uid and slug='groceries'),   d - 2,    'COSTCO WHSE #1021',       'Costco',             18712,  'expense', 'reviewed', false, 'split-suggested'),
+    (v_uid, v_chase, (select id from categories where user_id=v_uid and slug='groceries'),   d - 2,    'COSTCO WHSE #1021',       'Costco',             18712,  'expense', 'reviewed', false, null),
     (v_uid, v_amex,  (select id from categories where user_id=v_uid and slug='bills'),       d - 2,    'SPOTIFY P0A1B2',          'Spotify',            1099,   'expense', 'reviewed', true,  null),
     (v_uid, v_chase, (select id from categories where user_id=v_uid and slug='bills'),       d - 3,    'DUKE ENERGY BILLPAY',     'Duke Energy',        11455,  'expense', 'reviewed', true,  null),
     (v_uid, v_chase, (select id from categories where user_id=v_uid and slug='other'),       d - 3,    'PAYROLL DEPOSIT',         'Bi-Weekly Payroll',  -284500,'income',  'reviewed', true,  null),

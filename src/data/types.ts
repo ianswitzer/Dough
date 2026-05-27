@@ -105,7 +105,7 @@ export type Transaction = {
   isHiddenFromBudget: boolean;
   isRecurringCandidate: boolean;
   reviewStatus: 'needs_review' | 'reviewed' | 'ignored';
-  flag: string | null; // 'unusual' | 'split-suggested' | null
+  flag: string | null; // 'unusual' | null
   notes: string | null;
   tagNames: string[]; // denormalized for display
 };

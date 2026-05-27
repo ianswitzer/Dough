@@ -10,7 +10,7 @@ declare t text;
 begin
   foreach t in array array[
     'profiles','households','household_members','accounts','merchants',
-    'categories','tags','transactions','transaction_tags','transaction_splits',
+    'categories','tags','transactions','transaction_tags',
     'merchant_rules','budget_months','category_budgets','recurring_transactions',
     'recurring_matches','income_events','review_items','insights','saved_views',
     'import_jobs'
@@ -34,7 +34,7 @@ declare t text;
 begin
   foreach t in array array[
     'household_members','accounts','merchants','categories','tags',
-    'transactions','transaction_tags','transaction_splits','merchant_rules',
+    'transactions','transaction_tags','merchant_rules',
     'budget_months','category_budgets','recurring_transactions',
     'recurring_matches','income_events','review_items','insights',
     'saved_views','import_jobs'

@@ -65,8 +65,8 @@ constraints and gotchas live in [CLAUDE.md](CLAUDE.md), not here.
 
 ## Remaining
 
-- [ ] Transaction detail: "track as recurring" and split affordances (account
-      is now editable; these two remain).
+- [ ] Transaction detail: "track as recurring" affordance (account is now
+      editable).
 - [ ] Wire the static Settings controls to persist: recurring + notification
       toggles and the Buffer / Period / Confidence settings.
 - [ ] Optimistic cache so edits reflect instantly without a refetch round-trip.

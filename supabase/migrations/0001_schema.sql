@@ -130,7 +130,7 @@ create table transactions (
   is_hidden_from_budget boolean not null default false,
   is_recurring_candidate boolean not null default false,
   review_status review_status not null default 'reviewed',
-  flag text, -- 'unusual' | 'split-suggested' | null (UI hint)
+  flag text, -- 'unusual' | null (UI hint)
   source txn_source not null default 'manual',
   external_transaction_id text,
   notes text,
@@ -151,17 +151,6 @@ create table transaction_tags (
   user_id uuid not null references auth.users(id) on delete cascade,
   created_at timestamptz not null default now(),
   primary key (transaction_id, tag_id)
-);
-
--- ── Transaction splits (spec §9.10) ─────────────────────────────────────────
-create table transaction_splits (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
-  transaction_id uuid not null references transactions(id) on delete cascade,
-  category_id uuid references categories(id) on delete set null,
-  amount_cents bigint not null,
-  description text,
-  created_at timestamptz not null default now()
 );
 
 -- ── Merchant rules (spec §9.11) ─────────────────────────────────────────────

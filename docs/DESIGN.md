@@ -66,8 +66,8 @@ surfaces, softened accents). Toggle lives in Settings → Appearance.
 ### Overlays
 - **Transaction detail** — hero (category dot, merchant, amount, date/account);
   unusual callout; editable fields (category picker, tags, date, account,
-  notes); "apply to future like this" teach prompt; track-as-recurring / split
-  / hide; collapsible raw description.
+  notes); "apply to future like this" teach prompt; track-as-recurring / hide;
+  collapsible raw description.
 - **Category detail** — spent vs remaining, progress, pace note, top merchants,
   recent transactions.
 - **Review inbox** — review cards w/ one-tap approve / snooze / dismiss; empty
