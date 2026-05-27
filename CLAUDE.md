@@ -99,6 +99,25 @@ import `@supabase/supabase-js` directly.
   **Instrument Serif**. If Geist webfonts become available, swap in
   `src/theme/typography.ts` only.
 
+## Gotchas / environment
+
+- **Dependencies:** avoid `npm install --legacy-peer-deps` for routine installs.
+  It can silently prune transitive deps — installing the Plaid SDK that way once
+  removed `react-refresh`, breaking Metro with "Cannot find module
+  react-refresh/babel". If a native dep forces `--legacy-peer-deps`, run a plain
+  `npm install` afterward to repair the tree (or a clean
+  `rm -rf node_modules package-lock.json && npm install`). `tsc` will NOT catch
+  this class of bug — it's a Metro/Babel resolution failure; bundle or run
+  `npx expo-doctor` to surface it.
+- **Auth (local):** Supabase requires email confirmation by default, so a new
+  sign-up has no session until turned off (Dashboard → Authentication → Email →
+  disable "Confirm email"). See README.
+- **Plaid needs a custom dev build** (`npx expo run:ios`), not Expo Go — it
+  pulls in `react-native-plaid-link-sdk` (native). `/ios` + `/android` are
+  gitignored (CNG); regenerate with `npx expo prebuild`. Plaid secrets live in
+  Supabase function env only. Sandbox testing uses non-OAuth banks; OAuth needs
+  a `redirect_uri` + iOS Universal Link (see TODO + README §6).
+
 ## Don't
 
 - Don't add the design-canvas / iOS-frame prototype scaffolding from the
