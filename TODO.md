@@ -52,12 +52,15 @@ constraints and gotchas live in [CLAUDE.md](CLAUDE.md), not here.
       `plaid-sync-transactions` (incremental cursor sync), `PlaidRepository`
       interface + impl, working PlaidConnectScreen, `react-native-plaid-link-sdk`
       + prebuilt iOS. All three Edge Functions deployed with `PLAID_*` secrets.
+- [x] Transaction search: header search toggle filters the feed by merchant name
+      (`TransactionQuery.search` → `ilike` on clean/raw description), respecting
+      the active filter chip.
+- [x] Rename merchant from Transaction detail: editable "Name" row writes
+      `descriptionClean`, saved alongside the other corrections.
 
 ## Remaining
 
-- [ ] Transaction search (header search bar) — currently decorative.
 - [ ] Insights filter behavior — currently decorative.
-- [ ] Rename merchant from Transaction detail (not in UI yet).
 - [ ] Transaction detail: editable account, "track as recurring", and split
       affordances (account is currently fixed at create time).
 - [ ] Wire the static Settings controls to persist: recurring + notification

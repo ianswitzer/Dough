@@ -65,14 +65,22 @@ function DetailBody({
   const [remember, setRemember] = useState(true);
   const [hidden, setHidden] = useState(tx.isHiddenFromBudget);
   const [notes, setNotes] = useState(tx.notes ?? '');
+  const [merchant, setMerchant] = useState(tx.merchant);
   const [showTags, setShowTags] = useState(false);
   const [selTags, setSelTags] = useState<string[]>(tx.tagNames); // tag names
   const [saving, setSaving] = useState(false);
   const chosenCat = chosen ? categories.find((c) => c.id === chosen) : undefined;
   const categoryChanged = chosen !== tx.categoryId;
   const tagsChanged = [...selTags].sort().join('|') !== [...tx.tagNames].sort().join('|');
+  // A blank name falls back to the original; only a non-empty distinct value is a rename.
+  const trimmedMerchant = merchant.trim();
+  const merchantChanged = trimmedMerchant.length > 0 && trimmedMerchant !== tx.merchant;
   const changed =
-    categoryChanged || hidden !== tx.isHiddenFromBudget || notes.trim() !== (tx.notes ?? '') || tagsChanged;
+    categoryChanged ||
+    merchantChanged ||
+    hidden !== tx.isHiddenFromBudget ||
+    notes.trim() !== (tx.notes ?? '') ||
+    tagsChanged;
   const isIncome = tx.amountCents < 0;
 
   const toggleTag = (name: string) =>
@@ -86,6 +94,7 @@ function DetailBody({
         isHiddenFromBudget: hidden,
         notes: notes.trim() || null,
         reviewStatus: 'reviewed',
+        ...(merchantChanged ? { descriptionClean: trimmedMerchant } : {}),
       });
       if (tagsChanged) {
         const ids = (allTags ?? []).filter((t) => selTags.includes(t.name)).map((t) => t.id);
@@ -111,7 +120,7 @@ function DetailBody({
       <View style={{ alignItems: 'center', paddingHorizontal: 22, paddingBottom: 18 }}>
         <CategoryDot name={originalCategory?.name ?? tx.merchant} tintKey={originalCategory?.tint ?? 'muted'} size={56} />
         <Txt variant="display" style={{ fontSize: 26, marginTop: 12, letterSpacing: -0.2 }}>
-          {tx.merchant}
+          {trimmedMerchant || tx.merchant}
         </Txt>
         <View style={{ marginTop: 10 }}>
           <MoneyDisplay cents={Math.abs(tx.amountCents)} size={52} dim={isIncome} />
@@ -138,9 +147,10 @@ function DetailBody({
       {/* Editable fields */}
       <View style={{ paddingHorizontal: 16, paddingBottom: 14 }}>
         <Card padded={false}>
+          <MerchantRow value={merchant} onChange={setMerchant} />
           <Pressable
             onPress={() => setShowPicker((s) => !s)}
-            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 14 }}
+            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 14, borderTopWidth: 0.5, borderTopColor: colors.hairline }}
           >
             <Txt color={colors.muted} style={{ fontSize: 13 }}>Category</Txt>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -250,6 +260,25 @@ function DetailBody({
         </PrimaryButton>
       </View>
     </>
+  );
+}
+
+// Editable merchant name: renames the transaction by setting descriptionClean
+// (the resolved display name is clean || raw), saved with the other edits.
+function MerchantRow({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const { colors, fonts } = useTheme();
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 14 }}>
+      <Txt color={colors.muted} style={{ fontSize: 13, width: 64 }}>Name</Txt>
+      <TextInput
+        value={value}
+        onChangeText={onChange}
+        placeholder="Merchant name"
+        placeholderTextColor={colors.muted}
+        autoCapitalize="words"
+        style={{ flex: 1, textAlign: 'right', fontFamily: fonts.ui, fontSize: 14, color: colors.ink, padding: 0 }}
+      />
+    </View>
   );
 }
 
