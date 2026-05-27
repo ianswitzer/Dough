@@ -77,8 +77,26 @@ export interface TransactionRepository {
   monthSpendByCategory(year: number, month: number): Promise<Record<string, number>>;
 }
 
+export interface TrackRecurringInput {
+  /** Merchant display name — used as the series name and to match sibling rows. */
+  merchant: string;
+  categoryId: string | null;
+  /** Signed amount of the source transaction (expense positive, income negative). */
+  expectedAmountCents: number;
+  /** ISO yyyy-mm-dd the next occurrence is expected. */
+  nextExpectedDate: string;
+}
+
 export interface RecurringRepository {
   list(): Promise<RecurringTransaction[]>;
+  /**
+   * Manually track a merchant as a confirmed recurring series (spec §11.4
+   * "track as recurring"). Idempotent by name: upserts the series to
+   * `confirmed` and flags the merchant's transactions as recurring candidates.
+   */
+  track(input: TrackRecurringInput): Promise<void>;
+  /** Stop tracking a merchant: ignore its series and clear the candidate flag. */
+  untrack(merchant: string): Promise<void>;
 }
 
 export interface CreateRuleFromCorrection {

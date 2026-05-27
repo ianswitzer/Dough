@@ -67,6 +67,7 @@ function DetailBody({
   const [showAccounts, setShowAccounts] = useState(false);
   const [remember, setRemember] = useState(true);
   const [hidden, setHidden] = useState(tx.isHiddenFromBudget);
+  const [recurring, setRecurring] = useState(tx.isRecurringCandidate);
   const [notes, setNotes] = useState(tx.notes ?? '');
   const [merchant, setMerchant] = useState(tx.merchant);
   const [showTags, setShowTags] = useState(false);
@@ -80,10 +81,12 @@ function DetailBody({
   const trimmedMerchant = merchant.trim();
   const merchantChanged = trimmedMerchant.length > 0 && trimmedMerchant !== tx.merchant;
   const chosenAccount = (accounts ?? []).find((a) => a.id === accountId);
+  const recurringChanged = recurring !== tx.isRecurringCandidate;
   const changed =
     categoryChanged ||
     accountChanged ||
     merchantChanged ||
+    recurringChanged ||
     hidden !== tx.isHiddenFromBudget ||
     notes.trim() !== (tx.notes ?? '') ||
     tagsChanged;
@@ -106,6 +109,25 @@ function DetailBody({
       if (tagsChanged) {
         const ids = (allTags ?? []).filter((t) => selTags.includes(t.name)).map((t) => t.id);
         await repos.transactions.setTags(tx.id, ids).catch(() => {});
+      }
+      // Track-as-recurring (spec §11.4): promote/demote this merchant's series.
+      // Run after update() so a rename has already landed on description_clean.
+      if (recurringChanged) {
+        const name = trimmedMerchant || tx.merchant;
+        if (recurring) {
+          const next = new Date(`${tx.date}T00:00:00`);
+          next.setMonth(next.getMonth() + 1);
+          await repos.recurring
+            .track({
+              merchant: name,
+              categoryId: chosen,
+              expectedAmountCents: tx.amountCents,
+              nextExpectedDate: next.toISOString().slice(0, 10),
+            })
+            .catch(() => {});
+        } else {
+          await repos.recurring.untrack(name).catch(() => {});
+        }
       }
       // Corrections create learning (spec §12.2/§14): if the user changed the
       // category and opted to remember it, persist a MerchantRule and apply it
@@ -289,10 +311,19 @@ function DetailBody({
         </View>
       ) : null}
 
-      {/* Hide from budgets */}
+      {/* Track as recurring + hide from budgets */}
       <View style={{ paddingHorizontal: 16, paddingBottom: 14 }}>
         <Card padded={false}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 14 }}>
+            <View style={{ flex: 1, paddingRight: 12 }}>
+              <Txt color={colors.ink2} style={{ fontSize: 13.5 }}>Track as recurring</Txt>
+              <Txt color={colors.muted} style={{ fontSize: 12, marginTop: 2 }}>
+                Add {trimmedMerchant || tx.merchant} to your recurring bills.
+              </Txt>
+            </View>
+            <Toggle on={recurring} onChange={setRecurring} />
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 14, borderTopWidth: 0.5, borderTopColor: colors.hairline }}>
             <Txt color={colors.ink2} style={{ fontSize: 13.5 }}>Hide from budgets</Txt>
             <Toggle on={hidden} onChange={setHidden} />
           </View>

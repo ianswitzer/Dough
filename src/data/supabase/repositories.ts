@@ -418,6 +418,67 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
         );
         return (rows as any[]).map(toRecurring);
       },
+      async track(input) {
+        const { data: auth } = await sb.auth.getUser();
+        const uid = auth.user!.id;
+        const isIncome = input.expectedAmountCents < 0;
+        const fields = {
+          category_id: input.categoryId,
+          cadence: 'monthly',
+          expected_amount_cents: input.expectedAmountCents,
+          next_expected_date: input.nextExpectedDate,
+          is_income: isIncome,
+          status: 'confirmed' as const,
+        };
+        // Upsert by name (case-insensitive) so re-tracking confirms in place.
+        const existing = unwrap(
+          await sb
+            .from('recurring_transactions')
+            .select('id')
+            .eq('user_id', uid)
+            .ilike('name', input.merchant)
+            .maybeSingle(),
+        ) as any;
+        if (existing) {
+          unwrap(await sb.from('recurring_transactions').update(fields).eq('id', existing.id).select());
+        } else {
+          unwrap(
+            await sb
+              .from('recurring_transactions')
+              .insert({ user_id: uid, name: input.merchant, amount_variance_cents: 0, ...fields })
+              .select('id'),
+          );
+        }
+        // Flag the merchant's transactions so they read as recurring everywhere.
+        unwrap(
+          await sb
+            .from('transactions')
+            .update({ is_recurring_candidate: true })
+            .eq('user_id', uid)
+            .eq('description_clean', input.merchant)
+            .select('id'),
+        );
+      },
+      async untrack(merchant) {
+        const { data: auth } = await sb.auth.getUser();
+        const uid = auth.user!.id;
+        unwrap(
+          await sb
+            .from('recurring_transactions')
+            .update({ status: 'ignored' })
+            .eq('user_id', uid)
+            .ilike('name', merchant)
+            .select('id'),
+        );
+        unwrap(
+          await sb
+            .from('transactions')
+            .update({ is_recurring_candidate: false })
+            .eq('user_id', uid)
+            .eq('description_clean', merchant)
+            .select('id'),
+        );
+      },
     },
 
     budget: {

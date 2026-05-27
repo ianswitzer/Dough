@@ -62,11 +62,12 @@ constraints and gotchas live in [CLAUDE.md](CLAUDE.md), not here.
       insight kind; only buckets with matching insights are offered.
 - [x] Transaction detail: editable account (picker writes `accountId` via
       `TransactionPatch`, saved with the other corrections).
+- [x] Transaction detail: "track as recurring" toggle — `RecurringRepository`
+      `track`/`untrack` upsert a confirmed `recurring_transactions` series for the
+      merchant and flag/unflag its transactions; shows in the Recurring screen.
 
 ## Remaining
 
-- [ ] Transaction detail: "track as recurring" affordance (account is now
-      editable).
 - [ ] Wire the static Settings controls to persist: recurring + notification
       toggles and the Buffer / Period / Confidence settings.
 - [ ] Optimistic cache so edits reflect instantly without a refetch round-trip.
