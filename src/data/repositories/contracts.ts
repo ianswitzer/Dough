@@ -62,6 +62,8 @@ export interface TransactionQuery {
   tag?: string;
   hidden?: boolean;
   limit?: number;
+  /** Case-insensitive substring match on the merchant name (clean or raw). */
+  search?: string;
 }
 
 export interface TransactionRepository {

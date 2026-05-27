@@ -276,6 +276,11 @@ export function createSupabaseRepositories(sb: SupabaseClient): Repositories {
         if (query.recurringOnly) q = q.eq('is_recurring_candidate', true);
         if (query.categoryId) q = q.eq('category_id', query.categoryId);
         if (query.hidden !== undefined) q = q.eq('is_hidden_from_budget', query.hidden);
+        if (query.search?.trim()) {
+          // Match the resolved merchant name: clean name when present, else raw.
+          const term = `%${query.search.trim()}%`;
+          q = q.or(`description_clean.ilike.${term},description_raw.ilike.${term}`);
+        }
         if (query.limit) q = q.limit(query.limit);
         const rows = unwrap(await q);
         let mapped = (rows as any[]).map(toTransaction);

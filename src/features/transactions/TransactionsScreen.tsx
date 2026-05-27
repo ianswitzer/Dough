@@ -1,6 +1,6 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, TextInput, View } from 'react-native';
 
 import {
   AsyncBoundary,
@@ -35,10 +35,14 @@ export function TransactionsScreen() {
   const router = useRouter();
   const repos = useRepositories();
   const { byId } = useCategories();
+  const { fonts } = useTheme();
   const [filter, setFilter] = useState<Filter>('all');
+  const [searching, setSearching] = useState(false);
+  const [search, setSearch] = useState('');
+  const trimmedSearch = search.trim();
 
   const { data, loading, error, refetch } = useAsync(() => {
-    const query =
+    const base =
       filter === 'review'
         ? { reviewStatus: 'needs_review' as const }
         : filter === 'recurring'
@@ -48,8 +52,8 @@ export function TransactionsScreen() {
             : filter === 'hidden'
               ? { hidden: true }
               : { hidden: false };
-    return repos.transactions.list(query);
-  }, [filter]);
+    return repos.transactions.list(trimmedSearch ? { ...base, search: trimmedSearch } : base);
+  }, [filter, trimmedSearch]);
 
   // Refetch when the tab regains focus so a just-created transaction shows
   // without a manual pull-to-refresh.
@@ -80,8 +84,15 @@ export function TransactionsScreen() {
         title="Transactions"
         action={
           <View style={{ flexDirection: 'row', gap: 6 }}>
-            <IconButton>
-              <Icons.search color={colors.ink2} />
+            <IconButton
+              onPress={() =>
+                setSearching((s) => {
+                  if (s) setSearch('');
+                  return !s;
+                })
+              }
+            >
+              {searching ? <Icons.close color={colors.ink2} /> : <Icons.search color={colors.ink2} />}
             </IconButton>
             <IconButton onPress={() => router.push('/transaction/new')}>
               <Icons.plus color={colors.ink2} />
@@ -89,6 +100,40 @@ export function TransactionsScreen() {
           </View>
         }
       />
+
+      {/* Search bar (toggled from the header) */}
+      {searching ? (
+        <View style={{ paddingHorizontal: 16, paddingBottom: 14 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 8,
+              backgroundColor: colors.surface,
+              borderWidth: 0.5,
+              borderColor: colors.hairline2,
+              borderRadius: 999,
+              paddingHorizontal: 14,
+            }}
+          >
+            <Icons.search color={colors.muted} size={16} />
+            <TextInput
+              value={search}
+              onChangeText={setSearch}
+              autoFocus
+              placeholder="Search merchants…"
+              placeholderTextColor={colors.muted}
+              returnKeyType="search"
+              style={{ flex: 1, fontFamily: fonts.ui, fontSize: 15, color: colors.ink, paddingVertical: 11 }}
+            />
+            {search.length > 0 ? (
+              <Pressable onPress={() => setSearch('')} hitSlop={8}>
+                <Icons.close color={colors.muted} />
+              </Pressable>
+            ) : null}
+          </View>
+        </View>
+      ) : null}
 
       {/* Filter chips */}
       <ScrollView
@@ -139,7 +184,9 @@ export function TransactionsScreen() {
       <AsyncBoundary loading={loading} error={error}>
         {groups.length === 0 ? (
           <View style={{ paddingVertical: 50, alignItems: 'center' }}>
-            <Txt color={colors.muted}>Nothing here yet.</Txt>
+            <Txt color={colors.muted}>
+              {trimmedSearch ? `No matches for “${trimmedSearch}”.` : 'Nothing here yet.'}
+            </Txt>
           </View>
         ) : (
           groups.map(([date, items]) => (
