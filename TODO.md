@@ -57,10 +57,12 @@ constraints and gotchas live in [CLAUDE.md](CLAUDE.md), not here.
       the active filter chip.
 - [x] Rename merchant from Transaction detail: editable "Name" row writes
       `descriptionClean`, saved alongside the other corrections.
+- [x] Insights filter: header filter toggle reveals friendly buckets (Spending,
+      Merchants, Unusual, Recurring) that filter the plain-English list by
+      insight kind; only buckets with matching insights are offered.
 
 ## Remaining
 
-- [ ] Insights filter behavior — currently decorative.
 - [ ] Transaction detail: editable account, "track as recurring", and split
       affordances (account is currently fixed at create time).
 - [ ] Wire the static Settings controls to persist: recurring + notification
